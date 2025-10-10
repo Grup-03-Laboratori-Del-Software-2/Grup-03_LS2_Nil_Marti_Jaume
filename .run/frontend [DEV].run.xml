@@ -9,4 +9,14 @@
     <envs />
     <method v="2" />
   </configuration>
+  <configuration default="false" name="frontend [DEV]" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/frontend/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs />
+    <method v="2" />
+  </configuration>
 </component>
