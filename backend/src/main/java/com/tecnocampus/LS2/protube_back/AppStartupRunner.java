@@ -21,7 +21,7 @@ public class AppStartupRunner implements ApplicationRunner {
     VideoService videoService;
 
     // Example variables from our implementation. 
-    // Feel free to adapt them to your needs
+    // Feel free to adapt them to your needs.
     private final Environment env;
     private final Path rootPath;
     private final Boolean loadInitialData;
