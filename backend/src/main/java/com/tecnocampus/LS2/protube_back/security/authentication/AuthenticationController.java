@@ -1,6 +1,6 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication;
+package com.tecnocampus.LS2.protube_back.security.authentication;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.exceptions.NotFoundException;
+import com.tecnocampus.LS2.protube_back.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +26,4 @@ public class AuthenticationController {
                 .header("Authorization", tokenPrefix + response.getAccessToken())
                 .body(response);
     }
-
 }

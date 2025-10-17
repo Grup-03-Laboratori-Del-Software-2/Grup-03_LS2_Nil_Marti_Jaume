@@ -1,6 +1,6 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.configuration;
+package com.tecnocampus.LS2.protube_back.security.configuration;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication.CustomUserDetailsService;
+import com.tecnocampus.LS2.protube_back.security.authentication.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;

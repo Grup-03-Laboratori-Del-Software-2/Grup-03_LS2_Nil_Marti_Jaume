@@ -1,6 +1,6 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication;
+package com.tecnocampus.LS2.protube_back.security.authentication;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.domain.user.User;
+import com.tecnocampus.LS2.protube_back.domain.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,6 +1,6 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication;
+package com.tecnocampus.LS2.protube_back.security.authentication;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.exceptions.AuthenticationTokenException;
+import com.tecnocampus.LS2.protube_back.exceptions.AuthenticationTokenException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 

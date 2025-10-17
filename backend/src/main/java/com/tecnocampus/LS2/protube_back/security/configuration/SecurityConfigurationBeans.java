@@ -1,4 +1,4 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.configuration;
+package com.tecnocampus.LS2.protube_back.security.configuration;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;

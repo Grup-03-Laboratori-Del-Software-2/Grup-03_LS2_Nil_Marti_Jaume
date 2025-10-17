@@ -1,4 +1,4 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.exceptions;
+package com.tecnocampus.LS2.protube_back.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

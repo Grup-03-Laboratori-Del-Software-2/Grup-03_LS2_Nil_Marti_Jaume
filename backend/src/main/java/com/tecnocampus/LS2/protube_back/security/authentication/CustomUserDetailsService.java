@@ -1,7 +1,7 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication;
+package com.tecnocampus.LS2.protube_back.security.authentication;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.domain.user.User;
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.persistance.user.UserRepository;
+import com.tecnocampus.LS2.protube_back.domain.user.User;
+import com.tecnocampus.LS2.protube_back.persistance.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

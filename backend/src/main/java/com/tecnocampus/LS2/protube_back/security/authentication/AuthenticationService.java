@@ -1,8 +1,8 @@
-package com.tecnocampus.groupprojectinformaticawithjoseplogsboats.security.authentication;
+package com.tecnocampus.LS2.protube_back.security.authentication;
 
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.application.service.user.UserService;
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.domain.user.User;
-import com.tecnocampus.groupprojectinformaticawithjoseplogsboats.exceptions.NotFoundException;
+import com.tecnocampus.LS2.protube_back.application.service.user.UserService;
+import com.tecnocampus.LS2.protube_back.domain.user.User;
+import com.tecnocampus.LS2.protube_back.exceptions.NotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +34,8 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws NotFoundException {
-        userService.validate(request.email(), request.password());
+        //descomenta
+        //userService.validate(request.email(), request.password());
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
