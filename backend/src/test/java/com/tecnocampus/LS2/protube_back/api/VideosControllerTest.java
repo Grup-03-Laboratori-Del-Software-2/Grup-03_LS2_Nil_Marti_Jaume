@@ -1,12 +1,11 @@
-package com.tecnocampus.LS2.protube_back.controller;
+package com.tecnocampus.LS2.protube_back.api;
 
-import com.tecnocampus.LS2.protube_back.services.VideoService;
+import com.tecnocampus.LS2.protube_back.application.service.VideoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -19,10 +18,8 @@ class VideosControllerTest {
     @InjectMocks
     VideosController videosController;
 
-    @Autowired
     @Mock
     VideoService videoService;
-
 
     @Test
     void getVideos() {

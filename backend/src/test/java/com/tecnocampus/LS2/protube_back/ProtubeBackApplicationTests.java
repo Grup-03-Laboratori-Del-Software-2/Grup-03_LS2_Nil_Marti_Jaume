@@ -1,16 +1,14 @@
 package com.tecnocampus.LS2.protube_back;
 
-import com.tecnocampus.LS2.protube_back.services.VideoService;
+import com.tecnocampus.LS2.protube_back.application.service.VideoService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.Assert.assertNotNull;
-
 @SpringBootTest({
-        "pro_tube.store.dir=c:",
-        "pro_tube.load_initial_data=false"
+        "pro-tube.store-dir=c:",
+        "pro-tube.load-initial-data=false"
 })
 class ProtubeBackApplicationTests {
 
