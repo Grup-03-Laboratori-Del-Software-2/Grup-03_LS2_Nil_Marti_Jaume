@@ -1,6 +1,6 @@
 package com.tecnocampus.LS2.protube_back.api;
 
-import com.tecnocampus.LS2.protube_back.application.service.VideoService;
+import com.tecnocampus.LS2.protube_back.application.service.video.VideoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
