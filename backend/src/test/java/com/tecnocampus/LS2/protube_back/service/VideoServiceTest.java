@@ -1,5 +1,6 @@
-package com.tecnocampus.LS2.protube_back.services;
+package com.tecnocampus.LS2.protube_back.service;
 
+import com.tecnocampus.LS2.protube_back.application.service.VideoService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
