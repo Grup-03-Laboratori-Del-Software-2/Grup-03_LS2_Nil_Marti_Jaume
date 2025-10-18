@@ -3,45 +3,53 @@ package com.tecnocampus.LS2.protube_back.application.service.user;
 import com.tecnocampus.LS2.protube_back.application.dto.user.UserCreate;
 import com.tecnocampus.LS2.protube_back.application.dto.user.UserDTO;
 import com.tecnocampus.LS2.protube_back.application.mapper.user.UserMapper;
-import com.tecnocampus.LS2.protube_back.domain.user.ERole;
-import com.tecnocampus.LS2.protube_back.domain.user.Role;
 import com.tecnocampus.LS2.protube_back.domain.user.User;
-import com.tecnocampus.LS2.protube_back.persistance.user.RoleRepository;
+import com.tecnocampus.LS2.protube_back.exceptions.NotFoundException;
 import com.tecnocampus.LS2.protube_back.persistance.user.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 public class UserService {
-    private final UserRepository userRepo;
-    private final RoleRepository roleRepo;
-    private final PasswordEncoder encoder;
 
-    public UserService(UserRepository userRepo, RoleRepository roleRepo, PasswordEncoder encoder){
-        this.userRepo = userRepo; this.roleRepo = roleRepo; this.encoder = encoder;
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDTO register(UserCreate in){
-        if (userRepo.existsByEmail(in.email()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ya registrado");
-
-        User u = new User(
-                in.name(), in.surname(), in.email(),
-                encoder.encode(in.password()),
-                in.dateOfBirth(),
-                LocalDateTime.now()
+    public UserDTO register(UserCreate body) {
+        if (userRepo.existsByEmail(body.email())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+        var hashed = passwordEncoder.encode(body.password());
+        var user = new User(
+                body.name(),
+                body.surname(),
+                body.email(),
+                body.dateOfBirth(),
+                hashed,
+                LocalDateTime.now(),
+                Set.of("ROLE_USER")
         );
+        userRepo.save(user);
+        return UserMapper.userToUserDTO(user);
+    }
 
-        // Rol FREE por defecto
-        Role free = roleRepo.findByName(ERole.FREE);
-        if (free == null) free = roleRepo.save(new Role(ERole.FREE));
-        u.addRole(free);
+    public void validate(String email, String rawPassword) throws NotFoundException {
+        var user = userRepo.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
+        if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+    }
 
-        userRepo.save(u);
-        return UserMapper.toDto(u);
+    public UserDTO getByEmail(String email) throws NotFoundException {
+        var user = userRepo.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
+        return UserMapper.userToUserDTO(user);
     }
 }
