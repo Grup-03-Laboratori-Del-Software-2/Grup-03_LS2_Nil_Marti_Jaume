@@ -1,0 +1,38 @@
+@host = http://localhost:8080
+@json = application/json
+
+### REGISTER
+POST {{host}}/user/register
+Content-Type: {{json}}
+
+{
+  "name": "Username",
+  "surname": "Surname",
+  "email": "username.surname@tecnocampus.cat",
+  "password": "abcABC123#",
+  "dateOfBirth": "2000-09-18T21:00:00"
+}
+
+### LOGIN
+POST http://localhost:8080/user/login
+content-type: application/json
+
+{
+  "email": "username.surname@tecnocampus.cat",
+  "password": "abcABC123#"
+}
+
+> {%
+    const h = response.headers.valueOf("Authorization");
+    if (h) client.global.set("auth_token", h);
+%}
+
+### ME
+GET http://localhost:8080/user/me
+Authorization: {{auth_token}}
+
+### ME MANUAL TOKEN
+GET http://localhost:8080/user/me
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJwcm90dWJlIiwic3ViIjoidXNlcm5hbWUuc3VybmFtZUB0ZWNub2NhbXB1cy5jYXQiLCJleHAiOjE3NjA4MjUwNDEsImlhdCI6MTc2MDgxNzg0MSwicm9sZXMiOlsiUk9MRV9VU0VSIl19.LG7a2mzemy39PVBiEri5Ct3_A0sgFmhkZDnuZ1LGFCSsJ2fWM78l6RszTbQmngYCmxcnUaB9X-yeFFXfpWuUrA
+
+

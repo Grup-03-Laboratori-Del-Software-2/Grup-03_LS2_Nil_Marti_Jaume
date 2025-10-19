@@ -3,56 +3,54 @@ package com.tecnocampus.LS2.protube_back.domain.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
 @Entity
-@Table(name = "app_user") // evita 'USER' reservado en SQL
+@Table(name = "app_user")
 public class User {
     @Id
     @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank
-    private String password;
-
-    @NotBlank @Size(max = 255)
     private String name;
 
-    @NotBlank @Size(max = 255)
+    @NotBlank
     private String surname;
 
-    @NotNull
     private LocalDateTime dateOfBirth;
 
-    @NotNull
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Column(nullable = false)
     private LocalDateTime dateOfRegistration;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_email"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_email"))
+    @Column(name = "role")
+    private Set<String> roles = new HashSet<>();
 
-    protected User(){}
+    protected User() {}
 
-    public User(String name, String surname, String email, String password, LocalDateTime dob, LocalDateTime reg){
-        this.name = name; this.surname = surname; this.email = email;
-        this.password = password; this.dateOfBirth = dob; this.dateOfRegistration = reg;
+    public User(String name, String surname, String email, LocalDateTime dateOfBirth, String passwordHash, LocalDateTime dateOfRegistration, Set<String> roles) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
+        this.passwordHash = passwordHash;
+        this.dateOfRegistration = dateOfRegistration;
+        if (roles != null) this.roles = roles;
     }
 
-    public String getEmail(){ return email; }
-    public String getPassword(){ return password; }
-    public String getName(){ return name; }
-    public String getSurname(){ return surname; }
-    public LocalDateTime getDateOfBirth(){ return dateOfBirth; }
-    public LocalDateTime getDateOfRegistration(){ return dateOfRegistration; }
-    public Set<Role> getRoles(){ return roles; }
-    public void addRole(Role r){ roles.add(r); }
+    public String getEmail() { return email; }
+    public String getName() { return name; }
+    public String getSurname() { return surname; }
+    public LocalDateTime getDateOfBirth() { return dateOfBirth; }
+    public String getPasswordHash() { return passwordHash; }
+    public LocalDateTime getDateOfRegistration() { return dateOfRegistration; }
+    public Set<String> getRoles() { return roles; }
 }

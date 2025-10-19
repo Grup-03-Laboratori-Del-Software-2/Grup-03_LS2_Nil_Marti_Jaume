@@ -1,48 +1,47 @@
 package com.tecnocampus.LS2.protube_back.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.lang.NonNull;
+import org.springframework.web.servlet.config.annotation.*;
 
 import java.nio.file.Path;
 
-//@EnableWebMvc
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
-    /*private static final Logger LOG =
-            LoggerFactory.getLogger(MvcConfig.class);*/
-    /*@Autowired
-    private Environment env;*/
-    private final ProtubeProps props;
-
-    public MvcConfig(ProtubeProps props) {
-        this.props = props;
-    }
-
-
+    // Ruta del store. Coge application.properties (ENV_PROTUBE_STORE_DIR o fallback)
+    @Value("${pro-tube.store-dir:}")
+    private String storeDir;
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        Path store = props.storeDir();
-        if (store != null && !store.toString().isBlank()) {
-            registry
-                    .addResourceHandler("/media/**")
-                    .addResourceLocations(
-                            String.format("file:%s", store));
+        // /media/** -> archivos del store en disco
+        if (storeDir != null && !storeDir.isBlank()) {
+            Path store = Path.of(storeDir);
+            registry.addResourceHandler("/media/**")
+                    .addResourceLocations("file:%s".formatted(store));
         }
+
+        // estáticos del classpath
         registry.addResourceHandler("/**")
-           .addResourceLocations("classpath:/static/", "classpath:/public/",
+                .addResourceLocations(
+                        "classpath:/static/",
+                        "classpath:/public/",
                         "classpath:/resources/",
                         "classpath:/META-INF/resources/")
-           .setCachePeriod(3600);
+                .setCachePeriod(3600);
     }
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOriginPatterns("*");
-        registry.addMapping("/auth/**")
-                .allowedOriginPatterns("*");
+        registry.addMapping("/api/**").allowedOriginPatterns("*");
+        registry.addMapping("/auth/**").allowedOriginPatterns("*");
+    }
+
+    @Override
+    public void addViewControllers(@NonNull ViewControllerRegistry registry) {
+        // Servir el index de /static en la raíz
+        registry.addViewController("/").setViewName("forward:/index.html");
     }
 }

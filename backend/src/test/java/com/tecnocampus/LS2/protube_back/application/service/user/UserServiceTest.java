@@ -1,10 +1,7 @@
 package com.tecnocampus.LS2.protube_back.application.service.user;
 
 import com.tecnocampus.LS2.protube_back.application.dto.user.UserCreate;
-import com.tecnocampus.LS2.protube_back.domain.user.ERole;
-import com.tecnocampus.LS2.protube_back.domain.user.Role;
 import com.tecnocampus.LS2.protube_back.domain.user.User;
-import com.tecnocampus.LS2.protube_back.persistance.user.RoleRepository;
 import com.tecnocampus.LS2.protube_back.persistance.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +18,6 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock UserRepository userRepo;
-    @Mock RoleRepository roleRepo;
     @Mock PasswordEncoder encoder;
 
     @InjectMocks UserService service;
@@ -37,7 +33,6 @@ class UserServiceTest {
 
         when(userRepo.existsByEmail("jangladag@edu.tecnocampus.cat")).thenReturn(false);
         when(encoder.encode("Abc12345#")).thenReturn("ENC");
-        when(roleRepo.findByName(ERole.FREE)).thenReturn(new Role(ERole.FREE));
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
@@ -46,7 +41,7 @@ class UserServiceTest {
         verify(userRepo).save(captor.capture());
         User saved = captor.getValue();
         assertEquals("jangladag@edu.tecnocampus.cat", saved.getEmail());
-        assertEquals("ENC", saved.getPassword());
-        assertEquals(1, saved.getRoles().size()); // tiene FREE
+        assertEquals("ENC", saved.getPasswordHash());
+        assertEquals(1, saved.getRoles().size()); // 1 rol (tu servicio pone "ROLE_USER")
     }
 }
