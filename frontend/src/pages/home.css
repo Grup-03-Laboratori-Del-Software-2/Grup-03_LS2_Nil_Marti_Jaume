@@ -1,0 +1,201 @@
+:root { --bg:#0b0b0b; --fg:#fff; }
+.visually-hidden{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+.pt-home{ min-height:100vh; background:var(--bg); color:var(--fg); }
+.pt-container{ max-width:1600px; margin:0 auto; padding: 0 1rem; }
+.pt-topbar{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:.75rem; padding:.6rem 1rem; background:linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,0)); backdrop-filter: blur(4px); }
+.pt-brand{ display:flex; align-items:center; gap:.5rem; }
+.pt-brand img{ width:28px; height:28px; border-radius:6px; }
+.pt-brand span{ font-weight:700; letter-spacing:.2px; }
+.pt-nav{ margin-left:1rem; display:none; gap:1rem; opacity:.85; }
+@media (min-width:768px){ .pt-nav{ display:flex; } }
+.pt-nav a{ color:#fff; text-decoration:none; }
+.pt-nav a:hover{ text-decoration:underline; }
+.pt-actions{ margin-left:auto; display:flex; align-items:center; gap:.5rem; }
+.pt-actions input{ background:rgba(255,255,255,.1); border:0; color:#fff; padding:.4rem .6rem; border-radius:6px; outline:none; }
+.pt-actions button{ background:rgba(255,255,255,.16); color:#fff; border:0; padding:.45rem .7rem; border-radius:8px; cursor:pointer; }
+.pt-avatar{ width:32px; height:32px; border-radius:999px; background:rgba(255,255,255,.25); }
+
+.pt-hero{ position:relative; aspect-ratio:16/7; width:100%; overflow:hidden; border-bottom-left-radius:16px; border-bottom-right-radius:16px; }
+.pt-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
+.pt-hero-grad{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.25) 45%, rgba(0,0,0,.9) 100%); }
+.pt-hero-content{ position:absolute; bottom:0; left:0; padding: 1rem 1.5rem; max-width: 900px; }
+.pt-hero-content h1{ font-size: clamp(1.4rem, 3.5vw, 2.5rem); margin: 0 0 .4rem; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+.pt-hero-content p{ max-width: 60ch; opacity:.92; margin:.25rem 0 .6rem; }
+.pt-hero-buttons{ display:flex; gap:.5rem; }
+.pt-hero-buttons .primary{ background:#fff; color:#000; font-weight:700; }
+.pt-hero-buttons button{ border:0; border-radius:10px; padding:.6rem .9rem; background:rgba(255,255,255,.18); color:#fff; cursor:pointer; }
+
+.pt-sections{ margin-top:1rem; display:flex; flex-direction:column; gap:1.25rem; }
+
+.pt-footer{ margin-top:4rem; padding:2rem 0; text-align:center; font-size:.75rem; color:rgba(255,255,255,.45); }
+
+/* Skeletons */
+.pt-skeletons{ padding:2rem 0; }
+.pt-skel-row{ margin-bottom:1.5rem; }
+.pt-skel-title{ width:160px; height:16px; background:rgba(255,255,255,.1); border-radius:6px; margin-bottom:.5rem; }
+.pt-skel-cards{ display:flex; gap:.75rem; }
+.pt-skel-card{ width:260px; height:180px; background:rgba(255,255,255,.05); border-radius:10px; }
+@keyframes pulse { 0%{opacity:1} 50%{opacity:.6} 100%{opacity:1} }
+.pt-skeletons *{ animation: pulse 1.2s infinite; }
+
+
+/* === LAYOUT CON SIDEBAR IZQUIERDA === */
+.pt-home{ min-height:100vh; background:var(--bg); color:var(--fg); }
+
+/* desplazamos el contenido para dejar hueco fijo a la barra */
+.pt-home { padding-left: 64px; }            /* ancho de la barra */
+@media (max-width: 480px){ .pt-home { padding-left: 56px; } }
+
+/* barra lateral */
+.pt-sidebar{
+  position: fixed;
+  inset: 0 auto 0 0;           /* top:0,right:auto,bottom:0,left:0 */
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .4rem;
+  background: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.6));
+  backdrop-filter: blur(4px);
+  z-index: 30;
+}
+
+/* logo */
+.pt-logo img{
+  width: 34px; height: 34px; border-radius: 8px;
+  display:block;
+}
+
+/* grupo de enlaces centrales */
+.pt-side-links{
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: .4rem;
+}
+
+/* botón/icono de la barra */
+.pt-side-links a,
+.pt-side-bottom a{
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  color: #fff; text-decoration: none;
+  opacity: .85;
+  transition: .15s ease;
+  font-size: 20px;          /* tamaño del emoji-icono */
+  background: transparent;
+}
+
+.pt-side-links a:hover,
+.pt-side-bottom a:hover{
+  background: rgba(255,255,255,.14);
+  opacity: 1;
+}
+
+/* acciones ancladas abajo (subir / perfil) */
+.pt-side-bottom{
+  margin-top: auto;
+  display: flex; flex-direction: column; gap: .5rem;
+}
+
+/* container principal: ya tenías esta clase; no tocamos anchura */
+.pt-container{ max-width:1600px; margin:0 auto; padding: 0 1rem; }
+
+
+:root { --bg:#0b0b0b; --fg:#fff; --accent:#e50914; }
+
+/* Sidebar */
+.pt-home { padding-left: 64px; }
+@media (max-width: 480px){ .pt-home { padding-left: 56px; } }
+
+.pt-sidebar{
+  position: fixed; inset: 0 auto 0 0; width: 64px;
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  padding:.6rem .4rem;
+  background: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.6));
+  backdrop-filter: blur(4px); z-index:30;
+}
+
+.pt-logo img{ width:34px; height:34px; border-radius:8px; display:block; }
+
+/* Enlaces centrados verticalmente */
+.pt-side-links{
+  flex:1;                        /* ocupa el espacio entre logo y bottom */
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:.5rem;
+}
+
+/* Botón/icono base */
+.pt-side-link{
+  position:relative;
+  width:44px; height:44px;
+  display:grid; place-items:center;
+  border-radius:12px; color:#fff; text-decoration:none;
+  background:transparent; opacity:.9; transition:.15s ease;
+}
+
+/* Hover de fondo suave */
+.pt-side-link:hover{ background:rgba(255,255,255,.12); opacity:1; }
+
+.pt-side-link svg{ display:block; }
+
+/* Underline (barra) bajo el icono en hover y activo */
+.pt-side-link::after{
+  content:""; position:absolute; left:8px; right:8px; bottom:6px; height:2px;
+  background: var(--accent);
+  border-radius: 999px; opacity:0; transition: opacity .15s ease;
+}
+.pt-side-link:hover::after,
+.pt-side-link.active::after{ opacity:1; }
+
+/* realce del icono activo */
+.pt-side-link.active { background:rgba(229, 9, 20, .18); }
+
+/* tamaño del “icono” (emojis ahora; fácil de cambiar a SVG) */
+.pt-ico{ display:block; line-height:1; font-size:22px; }
+
+.pt-side-bottom{ margin-top:auto; display:flex; flex-direction:column; gap:.5rem; }
+
+
+/* === Full-bleed helpers for sections ===
+   La página tiene una sidebar fija (64px). Estas clases permiten
+   que una sección se expanda a todo el ancho visible (viewport)
+   manteniendo la alineación del contenido principal. */
+:root { --sidebar-w: 64px; }
+
+/* Expandir sección a todo el ancho (viewport - sidebar) y recentrarla */
+.pt-bleed{
+  width: calc(100vw - var(--sidebar-w));
+  /* desplaza la sección hacia la izquierda para alinear con el contenido */
+  margin-left: calc((100vw - var(--sidebar-w) - 100%) / -2);
+}
+
+/* Bloque de contacto: layout y estilos responsive */
+.pt-contact { margin-top: 3rem; margin-bottom: 3rem; }
+.pt-contact-inner { padding: 0 4rem; max-width: 1920px; margin: 0 auto; }
+
+.pt-contact h2{
+  font-size: 1.25rem;
+  margin: 0 0 .75rem;
+}
+
+.pt-contact-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.pt-contact-card{
+  background: rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.pt-contact-card h3{ margin: 0 0 .5rem; font-size: 1rem; }
+.pt-contact-card p{ margin: 0; opacity: .9; }
+.pt-contact-card ul{ margin: 0; padding-left: 1rem; line-height: 1.7; }
+.pt-contact-card a{ color: #9ecbff; }

@@ -10,6 +10,10 @@ export default {
   transform: {
     ...tsJestTransformCfg,
   },
+  moduleNameMapper: {
+    '\\.(css|less|sass|scss)$': '<rootDir>/src/test/styleMock.ts',
+    '\\.(svg|png|jpg|jpeg|gif|webp|avif)$': '<rootDir>/src/test/fileMock.ts',
+  },
   collectCoverage: true,
   coverageReporters: ['json', 'html'],
   coverageThreshold: {
