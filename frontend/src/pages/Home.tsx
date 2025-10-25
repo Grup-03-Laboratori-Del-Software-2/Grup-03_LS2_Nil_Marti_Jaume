@@ -8,12 +8,15 @@ import {
   FiUser,
   FiGrid,
   FiMail,
+  FiLogOut,
 } from "react-icons/fi";
 
 import { useAllVideos } from "../utils/useAllVideos";
 import { groupByCategory } from "../utils/groupByCategory";
 import type { Video } from "../utils/types";
 import CarouselRow from "../components/CarouselRow";
+import AuthModal from "../components/AuthModal";
+import { useAuth } from "../auth/useAuth";
 import "./home.css";
 
 export default function Home() {
@@ -31,7 +34,7 @@ export default function Home() {
           <>
             <HeroBanner video={hero} />
 
-            {/* Carruseles “tipo Netflix” */}
+            {/* Filas estilo Netflix */}
             <div className="pt-sections">
               {Object.entries(sections).map(([label, vids]) => (
                 <CarouselRow
@@ -43,10 +46,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Sección larga: todos los vídeos en grid */}
             <AllVideosSection videos={videos} />
-
-            {/* Sección larga: contacto / about (full-bleed) */}
             <ContactSection />
 
             {!videos.length && !error && (
@@ -61,7 +61,7 @@ export default function Home() {
   );
 }
 
-/* ---------------- Sidebar con react-icons + smooth scroll ---------------- */
+/* ---------------- Sidebar + usuario (usa el contexto de auth) ---------------- */
 function SideNav() {
   type TabId =
     | "home"
@@ -72,6 +72,8 @@ function SideNav() {
     | "contact";
 
   const [active, setActive] = useState<TabId>("home");
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   // init from hash on first load
   useEffect(() => {
@@ -121,39 +123,59 @@ function SideNav() {
   );
 
   return (
-    <aside className="pt-sidebar" aria-label="Navegación principal">
-      <a
-        href="#home"
-        className="pt-logo"
-        aria-label="ProTube"
-        onClick={(e) => {
-          e.preventDefault();
-          smoothGo("home");
-        }}
-      >
-        <img src="/protube-logo.png" alt="ProTube" />
-      </a>
-
-      <nav className="pt-side-links">
-        <Link id="home" title="Inicio" Icon={FiHome} />
-        <Link id="trending" title="Tendencias" Icon={FiTrendingUp} />
-        {/* “Recently Added” => id="recently-added" */}
-        <Link id="recently-added" title="Novedades" Icon={FiClock} />
-        <Link id="recommended" title="Recomendados" Icon={FiStar} />
-        {/* extras para probar scroll largo */}
-        <Link id="all" title="Todos los vídeos" Icon={FiGrid} />
-        <Link id="contact" title="Contacto" Icon={FiMail} />
-      </nav>
-
-      <div className="pt-side-bottom">
-        <a href="#" title="Subir" aria-label="Subir" className="pt-side-link">
-          <FiUpload size={22} />
+    <>
+      <aside className="pt-sidebar" aria-label="Navegación principal">
+        <a
+          href="#home"
+          className="pt-logo"
+          aria-label="ProTube"
+          onClick={(e) => {
+            e.preventDefault();
+            smoothGo("home");
+          }}
+        >
+          <img src="/protube-logo.png" alt="ProTube" />
         </a>
-        <a href="#" title="Perfil" aria-label="Perfil" className="pt-side-link">
-          <FiUser size={22} />
-        </a>
-      </div>
-    </aside>
+
+        <nav className="pt-side-links">
+          <Link id="home" title="Inicio" Icon={FiHome} />
+          <Link id="trending" title="Tendencias" Icon={FiTrendingUp} />
+          <Link id="recently-added" title="Novedades" Icon={FiClock} />
+          <Link id="recommended" title="Recomendados" Icon={FiStar} />
+          <Link id="all" title="Todos los vídeos" Icon={FiGrid} />
+          <Link id="contact" title="Contacto" Icon={FiMail} />
+        </nav>
+
+        <div className="pt-side-bottom">
+          <a href="#" title="Subir" aria-label="Subir" className="pt-side-link">
+            <FiUpload size={22} />
+          </a>
+
+          {user ? (
+            <button
+              title={`Cerrar sesión (${user.name})`}
+              aria-label="Cerrar sesión"
+              className="pt-side-link"
+              onClick={signOut}
+            >
+              <FiLogOut size={22} />
+            </button>
+          ) : (
+            <button
+              title="Iniciar sesión / Registrarse"
+              aria-label="Iniciar sesión / Registrarse"
+              className="pt-side-link"
+              onClick={() => setAuthOpen(true)}
+            >
+              <FiUser size={22} />
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* Modal de autenticación (componente único) */}
+      <AuthModal open={authOpen && !user} onClose={() => setAuthOpen(false)} />
+    </>
   );
 }
 
@@ -224,7 +246,6 @@ function AllVideoTile({ video }: { video: Video }) {
 
 function ContactSection() {
   return (
-    // FULL-BLEED: se expande a todo el ancho visible (restando la sidebar)
     <section id="contact" className="pt-bleed pt-contact">
       <div className="pt-contact-inner">
         <h2>Contacto y ayuda</h2>
@@ -273,7 +294,7 @@ function ContactSection() {
   );
 }
 
-/* ---------------- Hero + Skeletons (sin cambios) ---------------- */
+/* ---------------- Hero + Skeletons ---------------- */
 function HeroBanner({ video }: { video: Video | null }) {
   if (!video) return null;
   return (

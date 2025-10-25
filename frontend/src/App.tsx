@@ -1,2 +1,10 @@
 import Home from "./pages/Home";
-export default function App() { return <Home />; }
+import { AuthProvider } from "./auth/useAuth";
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Home />
+    </AuthProvider>
+  );
+}
