@@ -2,8 +2,16 @@ import { useRef } from "react";
 import type { Video } from "../utils/types";
 import VideoCard from "./VideoCard";
 import "./carousel-row.css";
+import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 
-export default function CarouselRow({ id, title, videos }: { id: string; title: string; videos: Video[] }) {
+type Props = {
+  id: string;
+  title: string;
+  videos: Video[];
+  onSelect?: (v: Video) => void; // opcional, si ya lo usas
+};
+
+export default function CarouselRow({ id, title, videos, onSelect }: Props) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -23,11 +31,48 @@ export default function CarouselRow({ id, title, videos }: { id: string; title: 
       </div>
 
       <div className="pt-row-wrap">
-        <button aria-label="Scroll left" onClick={() => scroll("left")} className="pt-row-arrow left">◀</button>
-        <div ref={scrollerRef} className="pt-row-scroller">
-          {videos.map(v => <VideoCard key={v.id} video={v} />)}
+        <button
+          aria-label="Scroll left"
+          onClick={() => scroll("left")}
+          className="pt-row-arrow left"
+        >
+          <FiChevronLeft size={20} style={{ verticalAlign: "middle" }} />
+        </button>
+
+        {/* Forzamos fila horizontal y snap */}
+        <div
+          ref={scrollerRef}
+          className="pt-row-scroller"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "12px",
+            overflowX: "auto",
+            overflowY: "hidden",
+            scrollBehavior: "smooth",
+            scrollSnapType: "x mandatory",
+            paddingBottom: "6px",
+          }}
+        >
+          {videos.map((v) => (
+            <div
+              key={v.id}
+              className="pt-row-item"
+              style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}
+              onClick={onSelect ? () => onSelect(v) : undefined}
+            >
+              <VideoCard video={v} />
+            </div>
+          ))}
         </div>
-        <button aria-label="Scroll right" onClick={() => scroll("right")} className="pt-row-arrow right">▶</button>
+
+        <button
+          aria-label="Scroll right"
+          onClick={() => scroll("right")}
+          className="pt-row-arrow right"
+        >
+          <FiChevronRight size={20} style={{ verticalAlign: "middle" }} />
+        </button>
       </div>
     </section>
   );

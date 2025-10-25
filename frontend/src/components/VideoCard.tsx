@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Video } from "../utils/types";
 import "./video-card.css";
+import { FiPlay } from "react-icons/fi";
+
 
 export default function VideoCard({ video }: { video: Video }) {
   const [hover, setHover] = useState(false);
@@ -17,8 +19,9 @@ export default function VideoCard({ video }: { video: Video }) {
         <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
         <div className={`pt-card-overlay ${hover ? "show" : ""}`}>
           <div className="pt-card-actions">
-            <button className="pt-btn primary">▶</button>
-            <button className="pt-btn">＋</button>
+            <button className="pt-btn primary" aria-label="Reproducir">
+              <FiPlay size={18} style={{ verticalAlign: "middle" }} />
+            </button>            <button className="pt-btn">＋</button>
           </div>
           <h3 className="pt-card-title">{video.title}</h3>
           <div className="pt-card-meta">

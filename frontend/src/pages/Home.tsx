@@ -17,12 +17,16 @@ import type { Video } from "../utils/types";
 import CarouselRow from "../components/CarouselRow";
 import AuthModal from "../components/AuthModal";
 import { useAuth } from "../auth/useAuth";
+import VideoDetail from "../components/VideoDetail";
 import "./home.css";
 
 export default function Home() {
   const { data: videos, loading, error } = useAllVideos();
   const hero: Video | null = videos[0] ?? null;
   const sections = useMemo(() => groupByCategory(videos), [videos]);
+
+  // nuevo: control del detalle
+  const [selected, setSelected] = useState<Video | null>(null);
 
   return (
     <div className="pt-home">
@@ -34,7 +38,6 @@ export default function Home() {
           <>
             <HeroBanner video={hero} />
 
-            {/* Filas estilo Netflix */}
             <div className="pt-sections">
               {Object.entries(sections).map(([label, vids]) => (
                 <CarouselRow
@@ -42,11 +45,12 @@ export default function Home() {
                   id={label.toLowerCase().replace(/\s+/g, "-")}
                   title={label}
                   videos={vids}
+                  onSelect={(v) => setSelected(v)}  // ← abrir detalle
                 />
               ))}
             </div>
 
-            <AllVideosSection videos={videos} />
+            <AllVideosSection videos={videos} onSelect={(v) => setSelected(v)} />
             <ContactSection />
 
             {!videos.length && !error && (
@@ -57,11 +61,16 @@ export default function Home() {
         )}
       </main>
       <footer className="pt-footer">© {new Date().getFullYear()} ProTube</footer>
+
+      {/* Modal detalle */}
+      {selected && (
+        <VideoDetail video={selected} onClose={() => setSelected(null)} />
+      )}
     </div>
   );
 }
 
-/* ---------------- Sidebar + usuario (usa el contexto de auth) ---------------- */
+/* --- Sidebar (igual) --- */
 function SideNav() {
   type TabId =
     | "home"
@@ -75,7 +84,6 @@ function SideNav() {
   const [authOpen, setAuthOpen] = useState(false);
   const { user, signOut } = useAuth();
 
-  // init from hash on first load
   useEffect(() => {
     const raw = (window.location.hash || "#home").slice(1) as TabId;
     const allowed: TabId[] = [
@@ -173,14 +181,19 @@ function SideNav() {
         </div>
       </aside>
 
-      {/* Modal de autenticación (componente único) */}
       <AuthModal open={authOpen && !user} onClose={() => setAuthOpen(false)} />
     </>
   );
 }
 
-/* ---------------- Secciones extra ---------------- */
-function AllVideosSection({ videos }: { videos: Video[] }) {
+/* --- Secciones --- */
+function AllVideosSection({
+  videos,
+  onSelect,
+}: {
+  videos: Video[];
+  onSelect: (v: Video) => void;
+}) {
   return (
     <section id="all" style={{ marginTop: "2.5rem" }}>
       <h2 style={{ fontSize: "1.25rem", margin: "0 0 .75rem" }}>Todos los vídeos</h2>
@@ -193,7 +206,7 @@ function AllVideosSection({ videos }: { videos: Video[] }) {
           }}
         >
           {videos.map((v) => (
-            <AllVideoTile key={v.id} video={v} />
+            <AllVideoTile key={v.id} video={v} onClick={() => onSelect(v)} />
           ))}
         </div>
       ) : (
@@ -203,10 +216,16 @@ function AllVideosSection({ videos }: { videos: Video[] }) {
   );
 }
 
-function AllVideoTile({ video }: { video: Video }) {
+function AllVideoTile({
+  video,
+  onClick,
+}: {
+  video: Video;
+  onClick: () => void;
+}) {
   return (
-    <a
-      href="#"
+    <button
+      onClick={onClick}
       style={{
         display: "block",
         background: "rgba(255,255,255,.06)",
@@ -214,6 +233,10 @@ function AllVideoTile({ video }: { video: Video }) {
         overflow: "hidden",
         textDecoration: "none",
         color: "inherit",
+        border: 0,
+        padding: 0,
+        textAlign: "left",
+        cursor: "pointer",
       }}
       title={video.title}
     >
@@ -240,7 +263,7 @@ function AllVideoTile({ video }: { video: Video }) {
           {typeof video.views === "number" ? ` • ${video.views.toLocaleString()} views` : ""}
         </div>
       </div>
-    </a>
+    </button>
   );
 }
 
@@ -249,7 +272,7 @@ function ContactSection() {
     <section id="contact" className="pt-bleed pt-contact">
       <div className="pt-contact-inner">
         <h2>Contacto y ayuda</h2>
-
+        {/* ...igual que antes... */}
         <div className="pt-contact-grid">
           <div className="pt-contact-card">
             <h3>ProTube</h3>
@@ -258,34 +281,26 @@ function ContactSection() {
               categorías y lista completa al final.
             </p>
           </div>
-
           <div className="pt-contact-card">
             <h3>Contacto</h3>
             <ul>
-              <li>
-                Email: <a href="mailto:contact@protube.dev">contact@protube.dev</a>
-              </li>
-              <li>
-                Soporte: <a href="mailto:support@protube.dev">support@protube.dev</a>
-              </li>
+              <li>Email: <a href="mailto:contact@protube.dev">contact@protube.dev</a></li>
+              <li>Soporte: <a href="mailto:support@protube.dev">support@protube.dev</a></li>
               <li>
                 GitHub:{" "}
                 <a
                   href="https://github.com/Grup-03-Laboratori-Del-Software-2/Grup-03_LS2_Nil_Marti_Jaume"
                   target="_blank"
                   rel="noreferrer"
-                >
-                  repositorio del proyecto
-                </a>
+                >repositorio del proyecto</a>
               </li>
             </ul>
           </div>
-
           <div className="pt-contact-card">
             <h3>Estado del backend</h3>
             <p>
               En desarrollo. Esta demo usa datos simulados (mocks). Cuando el API esté disponible,
-              cambia <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code> para cargar datos reales.
+              cambia <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code>.
             </p>
           </div>
         </div>
@@ -294,7 +309,7 @@ function ContactSection() {
   );
 }
 
-/* ---------------- Hero + Skeletons ---------------- */
+/* --- Hero + Skeletons + helpers (sin cambios relevantes) --- */
 function HeroBanner({ video }: { video: Video | null }) {
   if (!video) return null;
   return (
@@ -330,7 +345,6 @@ function Skeletons() {
   );
 }
 
-/* ---------------- helpers ---------------- */
 function formatMinSec(sec: number) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
