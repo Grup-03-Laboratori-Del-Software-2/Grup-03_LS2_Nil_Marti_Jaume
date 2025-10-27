@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VideoServiceTest {
 
-    VideoService videoService = new VideoService();
+    VideoService videoService;
 
 
     @Test
