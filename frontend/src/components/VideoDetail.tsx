@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 import type { Video } from "../utils/types";
 import { useComments } from "../utils/useComments";
 import { FiX, FiMessageCircle } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import "./video-card.css";
 
 export default function VideoDetail({
   video,
@@ -12,7 +14,6 @@ export default function VideoDetail({
 }) {
   const { comments, loading, error } = useComments(video.id);
 
-  // color/gradient sobre el hero
   const bgImage = useMemo(
     () =>
       video.thumbnailUrl
@@ -32,10 +33,12 @@ export default function VideoDetail({
         <div className="pt-detail-hero" style={{ backgroundImage: bgImage }}>
           <div className="pt-detail-hero-inner">
             {/* MINIATURA + OVERLAY PLAY */}
-            <a
-              href={`/watch/${video.id}`}
+            <Link
+              to={`/watch/${video.id}`}
+              state={{ video }}               // <- disponible en WatchPage con useLocation().state.video
               className="pt-thumb-wrap"
               aria-label={`Reproducir ${video.title}`}
+              onClick={onClose}              // opcional: cierra el modal al navegar
             >
               <img
                 src={video.thumbnailUrl}
@@ -49,13 +52,11 @@ export default function VideoDetail({
                 </svg>
                 <span className="pt-play-cta-text">Play video</span>
               </span>
-            </a>
+            </Link>
 
             <div className="pt-detail-meta">
               <h1 className="pt-detail-title">{video.title}</h1>
-              {video.description && (
-                <p className="pt-detail-desc">{video.description}</p>
-              )}
+              {video.description && <p className="pt-detail-desc">{video.description}</p>}
               <div className="pt-detail-tags">
                 {video.channel && <span>{video.channel}</span>}
                 {typeof video.views === "number" && (
@@ -79,9 +80,7 @@ export default function VideoDetail({
               </h2>
               {loading && <span className="pt-comments-badge">Cargando…</span>}
               {error && <span className="pt-comments-badge error">Error al cargar</span>}
-              {!loading && !error && (
-                <span className="pt-comments-badge">{comments.length}</span>
-              )}
+              {!loading && !error && <span className="pt-comments-badge">{comments.length}</span>}
             </header>
 
             {comments.length ? (
