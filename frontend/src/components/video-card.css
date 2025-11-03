@@ -14,3 +14,46 @@
 .pt-btn.primary { background:#fff; color:#000; font-weight:700; }
 .pt-card-title { margin:.4rem 0 0; font-size:.9rem; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
 .pt-card-meta { opacity:.85; font-size:.78rem; display:flex; gap:.5rem; }
+
+.pt-thumb-wrap {
+  position: relative;
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.pt-detail-thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Overlay Play centrado: 50% opacidad gris oscuro, sube al hover */
+.pt-play-cta {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  background: rgba(33,33,33,.5); /* 50% */
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: background .2s ease, transform .2s ease;
+  pointer-events: none; /* el hover se capta en el <a> */
+}
+
+.pt-thumb-wrap:hover .pt-play-cta {
+  background: rgba(33,33,33,.75);
+  transform: scale(1.01);
+}
+
+.pt-play-cta-text { font-size: .95rem; }
+
+.pt-thumb-wrap:focus-visible .pt-play-cta {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}

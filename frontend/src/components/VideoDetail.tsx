@@ -31,12 +31,26 @@ export default function VideoDetail({
         {/* HERO */}
         <div className="pt-detail-hero" style={{ backgroundImage: bgImage }}>
           <div className="pt-detail-hero-inner">
-            <img
-              src={video.thumbnailUrl}
-              alt={video.title}
-              className="pt-detail-thumb"
-              loading="eager"
-            />
+            {/* MINIATURA + OVERLAY PLAY */}
+            <a
+              href={`/watch/${video.id}`}
+              className="pt-thumb-wrap"
+              aria-label={`Reproducir ${video.title}`}
+            >
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="pt-detail-thumb"
+                loading="eager"
+              />
+              <span className="pt-play-cta">
+                <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" fill="currentColor"></path>
+                </svg>
+                <span className="pt-play-cta-text">Play video</span>
+              </span>
+            </a>
+
             <div className="pt-detail-meta">
               <h1 className="pt-detail-title">{video.title}</h1>
               {video.description && (
