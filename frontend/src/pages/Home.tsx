@@ -25,7 +25,6 @@ export default function Home() {
   const hero: Video | null = videos[0] ?? null;
   const sections = useMemo(() => groupByCategory(videos), [videos]);
 
-  // nuevo: control del detalle
   const [selected, setSelected] = useState<Video | null>(null);
 
   return (
@@ -45,7 +44,7 @@ export default function Home() {
                   id={label.toLowerCase().replace(/\s+/g, "-")}
                   title={label}
                   videos={vids}
-                  onSelect={(v) => setSelected(v)}  // ← abrir detalle
+                  onSelect={(v) => setSelected(v)} 
                 />
               ))}
             </div>
@@ -70,7 +69,7 @@ export default function Home() {
   );
 }
 
-/* --- Sidebar (igual) --- */
+/* --- Sidebar --- */
 function SideNav() {
   type TabId =
     | "home"
@@ -142,7 +141,7 @@ function SideNav() {
             smoothGo("home");
           }}
         >
-          <img src="/protube-logo.png" alt="ProTube" />
+          <img src="/vidflow-logo.png" alt="ProTube" />
         </a>
 
         <nav className="pt-side-links">
@@ -272,7 +271,6 @@ function ContactSection() {
     <section id="contact" className="pt-bleed pt-contact">
       <div className="pt-contact-inner">
         <h2>Contacto y ayuda</h2>
-        {/* ...igual que antes... */}
         <div className="pt-contact-grid">
           <div className="pt-contact-card">
             <h3>ProTube</h3>
@@ -309,7 +307,7 @@ function ContactSection() {
   );
 }
 
-/* --- Hero + Skeletons + helpers (sin cambios relevantes) --- */
+/* --- Hero + Skeletons + helpers --- */
 function HeroBanner({ video }: { video: Video | null }) {
   if (!video) return null;
   return (

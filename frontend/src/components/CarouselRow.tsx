@@ -8,7 +8,7 @@ type Props = {
   id: string;
   title: string;
   videos: Video[];
-  onSelect?: (v: Video) => void; // opcional, si ya lo usas
+  onSelect?: (v: Video) => void;
 };
 
 export default function CarouselRow({ id, title, videos, onSelect }: Props) {
