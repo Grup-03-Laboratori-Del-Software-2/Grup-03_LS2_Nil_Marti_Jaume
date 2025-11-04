@@ -4,8 +4,5 @@ import java.time.LocalDateTime;
 
 public record VideoDTO(
         Long id,
-        String name,
-        String username,
-        String thumbnailURL,
-        long duration
+        String thumbnailURL
 ) {}

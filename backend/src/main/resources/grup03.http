@@ -39,4 +39,4 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJwcm90dWJlIiwic3ViIjoidXNlc
 GET http://localhost:8080/api/videos
 
 ### GET VIDEO DETAILED
-GET http://localhost:8080/api/videos
+GET http://localhost:8080/api/videos/1

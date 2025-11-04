@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back;
 
 import com.tecnocampus.LS2.protube_back.application.service.video.VideoService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ public class AppStartupRunner implements ApplicationRunner {
         LOG.info("Store: {} | loadInitialData: {}", storePath, loadInitialData);
 
         if (loadInitialData) {
-            var list = videoService.getVideos();
+            var list = videoService.loadVideosFromDisk(storeDir);
             LOG.info("Vídeos disponibles al arrancar: {}", list.size());
         }
     }

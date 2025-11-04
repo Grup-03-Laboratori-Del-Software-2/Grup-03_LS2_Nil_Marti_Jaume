@@ -12,10 +12,7 @@ public class VideoMapper {
     public static VideoDTO videoToVideoDTO(Video video) {
         return new VideoDTO(
                 video.getId(),
-                video.getName(),
-                video.getUsername(),
-                video.getThumbnailURL(),
-                video.getDuration());
+                video.getThumbnailURL());
     }
 
     public static VideoDetailDTO videoToVideoDetailDTO(Video video) {

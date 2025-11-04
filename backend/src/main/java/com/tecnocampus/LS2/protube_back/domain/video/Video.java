@@ -2,6 +2,8 @@ package com.tecnocampus.LS2.protube_back.domain.video;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,16 +27,18 @@ public class Video {
     @NotBlank
     private String username;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     @NotBlank
     private String description;
 
-    @NotBlank
+    @NotNull
     private LocalDateTime dateOfPublish;
 
     @NotBlank
     private String thumbnailURL;
 
-    @NotBlank
+    @NotNull
     private long duration;
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
