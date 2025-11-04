@@ -19,6 +19,7 @@ public class SecurityConfigurationAuthorization {
             "/user/register",
             "/user/login",
             "/media/**",
+            "/api/videos/**",
             "/h2-console/**"
     };
 
