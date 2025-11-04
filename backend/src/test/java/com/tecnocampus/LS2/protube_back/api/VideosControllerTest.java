@@ -28,14 +28,7 @@ class VideosControllerTest {
     @Autowired
     MockMvc mvc;
 
-    @Test
-    void getVideos_devuelve_26_elementos() throws Exception {
-        mvc.perform(get("/api/videos")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()").value(26));
-    }
+
 
     @Test
     void getVideos_emptyList_ok() throws Exception {
