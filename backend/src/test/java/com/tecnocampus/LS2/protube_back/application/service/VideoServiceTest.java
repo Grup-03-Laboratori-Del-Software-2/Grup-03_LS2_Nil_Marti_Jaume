@@ -60,14 +60,6 @@ class VideoServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    @Test
-    void loadVideosFromDisk_emptyFolder_returnsEmptyList() {
-        // Passa un path inexistent (no llença error, només retorna buit)
-        List<String> result = videoService.loadVideosFromDisk("/path/inexistent");
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
 
     @Test
     void loadVideosFromDisk_validFolder_parsesFiles() {
