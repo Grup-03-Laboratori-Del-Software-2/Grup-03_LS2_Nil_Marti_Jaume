@@ -12,6 +12,6 @@ This has been added to the gitignore, so each team member can have an specific c
 
 
 # Here you have your own path
-YT_DLP_BIN = r"C:\Users\GTA5N\Documents\UNIVERSITAT\4t Enginyeria Informatica\1r Trimes\PEDRO - Laboratori de Software ll\protube\yt_dlp\yt-dlp.exe"
+YT_DLP_BIN="/home/myuser/yt-dlp_linux"
 FFMPEG_BIN="ffmpeg"
 FFPROBE_BIN="ffprobe"
