@@ -1,3 +1,20 @@
+html {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+               "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, input, button, select, textarea {
+  font: inherit;
+}
+
+.pt-hero-content h1 { font-weight: 800; letter-spacing: -0.01em; }
+.pt-hero-buttons button { font-weight: 600; }
+.pt-side-link, .pt-nav a { letter-spacing: .1px; }
+
+
 .App {
   text-align: center;
 }

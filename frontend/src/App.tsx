@@ -1,41 +1,18 @@
-import './App.css';
-import { useAllVideos } from './useAllVideos';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import WatchPage from "./pages/WatchPage";
+import { AuthProvider } from "./auth/useAuth";
+import "./App.css";
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="/protube-logo-removebg-preview.png" className="App-logo" alt="logo" />
-        <ContentApp />
-      </header>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/watch/:id" element={<WatchPage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-function ContentApp() {
-  const { loading, message, value } = useAllVideos();
-  switch (loading) {
-    case 'loading':
-      return <div>Loading...</div>;
-    case 'error':
-      return (
-        <div>
-          <h3>Error</h3> <p>{message}</p>
-        </div>
-      );
-    case 'success':
-      return (
-        <>
-          <strong>Videos available:</strong>
-          <ul>
-            {value.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
-        </>
-      );
-  }
-  return <div>Idle...</div>;
-}
-
-export default App;

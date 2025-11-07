@@ -1,0 +1,59 @@
+.pt-card { display:inline-block; width: 46vw; max-width: 280px; margin-right: .75rem; vertical-align:top; }
+@media (min-width: 640px){ .pt-card{ width: 32vw; } }
+@media (min-width: 768px){ .pt-card{ width: 24vw; } }
+@media (min-width: 1024px){ .pt-card{ width: 19vw; } }
+@media (min-width: 1280px){ .pt-card{ width: 16vw; } }
+
+.pt-card-media { position: relative; border-radius: 10px; overflow: hidden; background:#111; box-shadow: 0 4px 16px rgba(0,0,0,.25); transition: transform .18s ease-out; }
+.pt-card:hover .pt-card-media { transform: scale(1.03); }
+.pt-card-media img { width: 100%; height: 180px; object-fit: cover; display:block; }
+.pt-card-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.9) 100%); opacity:0; transition:opacity .18s; color:#fff; padding:.5rem .6rem; display:flex; flex-direction:column; justify-content:flex-end; }
+.pt-card-overlay.show { opacity:1; }
+.pt-card-actions { display:flex; gap:.4rem; }
+.pt-btn { height:32px; width:32px; border-radius:50%; border:none; background: rgba(255,255,255,.25); color:#fff; cursor:pointer; }
+.pt-btn.primary { background:#fff; color:#000; font-weight:700; }
+.pt-card-title { margin:.4rem 0 0; font-size:.9rem; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+.pt-card-meta { opacity:.85; font-size:.78rem; display:flex; gap:.5rem; }
+
+.pt-thumb-wrap {
+  position: relative;
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.pt-detail-thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Overlay Play centrado: 50% opacidad gris oscuro, sube al hover */
+.pt-play-cta {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  background: rgba(33,33,33,.5); /* 50% */
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: background .2s ease, transform .2s ease;
+  pointer-events: none; /* el hover se capta en el <a> */
+}
+
+.pt-thumb-wrap:hover .pt-play-cta {
+  background: rgba(33,33,33,.75);
+  transform: scale(1.01);
+}
+
+.pt-play-cta-text { font-size: .95rem; }
+
+.pt-thumb-wrap:focus-visible .pt-play-cta {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
