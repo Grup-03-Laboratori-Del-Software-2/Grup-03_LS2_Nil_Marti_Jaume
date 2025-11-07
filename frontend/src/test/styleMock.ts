@@ -1,1 +1,1 @@
-export default {} as Record<string, string>;
+export default {} as any;
