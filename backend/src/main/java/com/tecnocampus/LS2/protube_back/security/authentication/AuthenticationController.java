@@ -12,7 +12,6 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "*")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
