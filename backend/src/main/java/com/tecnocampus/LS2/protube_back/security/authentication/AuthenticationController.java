@@ -4,11 +4,15 @@ import com.tecnocampus.LS2.protube_back.application.dto.user.AuthenticationReque
 import com.tecnocampus.LS2.protube_back.application.dto.user.AuthenticationResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -23,8 +27,20 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         var response = authenticationService.authenticate(request);
+        var token = response.accessToken();
+
+        var cookie = ResponseCookie.from("access_token", token)
+                .httpOnly(true)
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofHours(12))
+                .build();
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, tokenPrefix + response.accessToken())
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .body(response);
     }
+
 }
