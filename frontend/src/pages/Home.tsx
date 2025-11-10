@@ -297,8 +297,7 @@ function ContactSection() {
           <div className="pt-contact-card">
             <h3>Estado del backend</h3>
             <p>
-              En desarrollo. Esta demo usa datos simulados (mocks). Cuando el API esté disponible,
-              cambia <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code>.
+              API conectada. Las tarjetas se rellenan desde <code>/api/videos</code> y la media se sirve desde <code>/media/**</code>.
             </p>
           </div>
         </div>
@@ -306,6 +305,7 @@ function ContactSection() {
     </section>
   );
 }
+
 
 /* --- Hero + Skeletons + helpers --- */
 function HeroBanner({ video }: { video: Video | null }) {

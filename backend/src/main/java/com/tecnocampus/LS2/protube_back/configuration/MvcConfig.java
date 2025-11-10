@@ -20,7 +20,7 @@ public class MvcConfig implements WebMvcConfigurer {
         if (storeDir != null && !storeDir.isBlank()) {
             Path store = Path.of(storeDir);
             registry.addResourceHandler("/media/**")
-                    .addResourceLocations("file:%s".formatted(store));
+                    .addResourceLocations("file:%s/".formatted(store.toAbsolutePath().toString()));
         }
 
         // estáticos del classpath
@@ -37,6 +37,8 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/api/**").allowedOriginPatterns("*");
         registry.addMapping("/auth/**").allowedOriginPatterns("*");
+        // Añadimos CORS para media (por si el tag <video> lo requiere entre puertos distintos)
+        registry.addMapping("/media/**").allowedOriginPatterns("*");
     }
 
     @Override

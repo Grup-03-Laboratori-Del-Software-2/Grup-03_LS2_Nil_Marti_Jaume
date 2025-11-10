@@ -1,12 +1,10 @@
 export type Video = {
-  id: string;
+  id: number | string;
   title: string;
   description?: string;
-  thumbnailUrl: string;
-  previewUrl?: string;
-  category?: string;
+  thumbnailUrl: string;   
   durationSec?: number;
   views?: number;
-  createdAt?: string;
-  owner?: { id: string; name: string; avatarUrl?: string };
+  channel?: string;
+  src?: string;
 };

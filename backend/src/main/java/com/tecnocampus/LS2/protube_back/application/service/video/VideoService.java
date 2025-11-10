@@ -1,96 +1,112 @@
 package com.tecnocampus.LS2.protube_back.application.service.video;
 
-import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
-import com.tecnocampus.LS2.protube_back.domain.video.Video;
-import com.tecnocampus.LS2.protube_back.domain.video.VideoMetadata;
-import jakarta.transaction.Transactional;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
-import com.tecnocampus.LS2.protube_back.application.mapper.video.VideoMapper;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDTO;
+import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Files;
-
-
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 @Service
 public class VideoService {
 
-    private final VideoRepository videoRepository;
+    private final Path storeDir;
 
-
-    public VideoService(VideoRepository videoRepository){
-        this.videoRepository = videoRepository;
+    public VideoService(@Value("${pro-tube.store-dir:}") String storeDir) {
+        if (storeDir == null || storeDir.isBlank()) {
+            throw new IllegalStateException("pro-tube.store-dir vacío. Configura ENV_PROTUBE_STORE_DIR o application.properties");
+        }
+        this.storeDir = Paths.get(storeDir).toAbsolutePath();
     }
 
     public List<VideoDTO> getVideos() {
-        return videoRepository.findAll().stream().map(VideoMapper::videoToVideoDTO).toList();
+        List<VideoFile> files = scan();
+        return files.stream()
+                .map(v -> new VideoDTO(
+                        v.id,
+                        v.title,
+                        v.description,
+                        v.durationSec,
+                        "/media/" + v.baseName + ".webp",
+                        "/media/" + v.baseName + ".mp4"
+                ))
+                .collect(Collectors.toList());
     }
 
-    public Optional<VideoDetailDTO> getVideoDetail(Long videoId) {
-        return videoRepository.findById(videoId).map(VideoMapper::videoToVideoDetailDTO);
+    public Optional<VideoDetailDTO> getVideoDetail(Long id) {
+        return scan().stream()
+                .filter(v -> Objects.equals(v.id, id))
+                .findFirst()
+                .map(v -> new VideoDetailDTO(
+                        v.id,
+                        v.title,
+                        v.description,
+                        v.durationSec,
+                        "/media/" + v.baseName + ".webp",
+                        "/media/" + v.baseName + ".mp4"
+                ));
     }
 
-    public List<String> loadVideosFromDisk(String storeDir) {
-        List<String> loadedVideos = new ArrayList<>();
-        Path storePath = Paths.get(storeDir);
-        ObjectMapper objectMapper = new ObjectMapper();
+    // -------- internals --------
 
-        try (Stream<Path> paths = Files.list(storePath)) {
-            List<Path> jsonFiles = paths
-                    .filter(p -> p.toString().endsWith(".json"))
+    private List<VideoFile> scan() {
+        try (Stream<Path> files = Files.list(storeDir)) {
+            // cada .json define un video
+            List<String> basenames = files
+                    .filter(p -> p.getFileName().toString().endsWith(".json"))
+                    .map(p -> p.getFileName().toString().replaceFirst("\\.json$", ""))
                     .sorted()
                     .toList();
 
-            for (Path jsonFile : jsonFiles) {
-                String baseName = jsonFile.getFileName().toString().replace(".json", "");
-                Path videoPath = storePath.resolve(baseName + ".mp4");
-                Path thumbnailPath = storePath.resolve(baseName + ".webp");
+            List<VideoFile> out = new ArrayList<>();
+            long idx = 1;
+            for (String base : basenames) {
+                Path json = storeDir.resolve(base + ".json");
+                Path mp4  = storeDir.resolve(base + ".mp4");
+                Path webp = storeDir.resolve(base + ".webp");
 
-                VideoMetadata metadata = objectMapper.readValue(jsonFile.toFile(), VideoMetadata.class);
+                if (!Files.exists(mp4) || !Files.exists(webp)) {
+                    // si falta media, lo saltamos
+                    continue;
+                }
 
-                Video video = new Video(
-                        videoPath.toString(),
-                        metadata.title(),
-                        metadata.user(),
-                        metadata.meta().description(),
-                        Instant.ofEpochSecond(metadata.timestamp())
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDateTime(),
-                        thumbnailPath.toString(),
-                        (int) metadata.duration());
+                String raw = Files.readString(json);
+                String title = extract(raw, "\"title\"\\s*:\\s*\"(.*?)\"");
+                String description = extract(raw, "\"description\"\\s*:\\s*\"(.*?)\"");
+                String dur = extract(raw, "\"duration\"\\s*:\\s*(\\d+)");
 
-                videoRepository.save(video);
-                System.out.println("✔️ Guardat vídeo: " + video.getName() + " | ID: " + video.getId());
+                Integer duration = null;
+                try { duration = Integer.parseInt(dur); } catch (Exception ignored) {}
 
-                loadedVideos.add(video.getName());
+                VideoFile vf = new VideoFile();
+                vf.id = idx++;
+                vf.baseName = base;
+                vf.title = title != null && !title.isBlank() ? title : base;
+                vf.description = description != null ? description : "";
+                vf.durationSec = duration;
 
+                out.add(vf);
             }
-
-
-
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return out;
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo leer el store: " + storeDir, e);
         }
-        System.out.println("📦 Vídeos al repositori: {}"+videoRepository.count());
-
-        return loadedVideos;
     }
 
+    private static String extract(String src, String regex) {
+        var m = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.DOTALL).matcher(src);
+        return m.find() ? m.group(1) : null;
+    }
+
+    private static class VideoFile {
+        long id;
+        String baseName;
+        String title;
+        String description;
+        Integer durationSec;
+    }
 }
