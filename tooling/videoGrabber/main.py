@@ -129,7 +129,7 @@ def get_videos():
         videos = f.readlines()
 
         sanitized_videos = [line.strip() for line in videos if len(line.strip()) > 0 and not line.startswith("--")]
-        return [video for video in sanitized_videos if random.randint(0, 100) < 70]
+        return sanitized_videos
 
 
 def grab_videos():

@@ -1,7 +1,9 @@
 package com.tecnocampus.LS2.protube_back.domain.video;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record VideoMetadata(
         int id,
         int width,
@@ -12,21 +14,23 @@ public record VideoMetadata(
         long timestamp,
         Meta meta
 ) {
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record Meta(
             String description,
             List<String> categories,
             List<String> tags,
-            int view_count,
-            int like_count,
+            long view_count,
+            long like_count,
             String channel,
-            int channel_follower_count,
+            long channel_follower_count,
             List<Comment> comments
     ) {}
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record Comment(
             String text,
             String author,
             long timestamp,
-            int like_count
+            long like_count
     ) {}
 }
