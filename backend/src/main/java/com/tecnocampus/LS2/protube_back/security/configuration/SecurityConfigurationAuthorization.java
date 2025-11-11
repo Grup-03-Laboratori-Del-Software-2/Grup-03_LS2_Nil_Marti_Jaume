@@ -1,14 +1,16 @@
+// SecurityConfigurationAuthorization.java
 package com.tecnocampus.LS2.protube_back.security.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 @Configuration
 @EnableWebSecurity
@@ -24,15 +26,17 @@ public class SecurityConfigurationAuthorization {
     };
 
     private final JwtDecoder jwtDecoder;
+    private final BearerTokenResolver bearerTokenResolver;
 
-    public SecurityConfigurationAuthorization(JwtDecoder jwtDecoder) {
+    public SecurityConfigurationAuthorization(JwtDecoder jwtDecoder, BearerTokenResolver bearerTokenResolver) {
         this.jwtDecoder = jwtDecoder;
+        this.bearerTokenResolver = bearerTokenResolver;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.disable())
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .headers(h -> h.frameOptions(f -> f.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
@@ -40,7 +44,10 @@ public class SecurityConfigurationAuthorization {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(o -> o.jwt(j -> j.decoder(jwtDecoder)))
+                .oauth2ResourceServer(o -> o
+                        .jwt(j -> j.decoder(jwtDecoder))
+                        .bearerTokenResolver(bearerTokenResolver)
+                )
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }

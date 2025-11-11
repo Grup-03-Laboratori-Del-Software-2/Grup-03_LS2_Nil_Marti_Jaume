@@ -101,7 +101,6 @@ export function useAllVideos() {
         String((env.__vite__ as any)?.VITE_USE_MOCK_VIDEOS ?? "").toLowerCase() === "true";
 
       try {
-        // 1) Forzar mocks si el flag está activo
         if (useMocks) {
           if (!ignore) {
             setData(MOCK_VIDEOS);
