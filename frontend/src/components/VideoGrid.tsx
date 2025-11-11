@@ -31,7 +31,7 @@ export default function VideoGrid() {
     <ul style={{
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-      gap: "16px",
+      gap: 16,
       listStyle: "none",
       padding: 0
     }}>
@@ -39,9 +39,12 @@ export default function VideoGrid() {
         <li key={v.id} style={{ cursor: "pointer" }}>
           <img
             src={v.thumbnailURL}
-            alt={`Video ${v.id}`}
+            alt={v.name || `Video ${v.id}`}
             style={{ width: "100%", borderRadius: 12, display: "block" }}
           />
+          <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.3 }}>
+            {v.name || "Untitled"}
+          </div>
         </li>
       ))}
     </ul>
