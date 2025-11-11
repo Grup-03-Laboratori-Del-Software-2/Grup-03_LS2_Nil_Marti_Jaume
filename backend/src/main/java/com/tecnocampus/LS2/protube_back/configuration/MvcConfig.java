@@ -21,7 +21,7 @@ public class MvcConfig implements WebMvcConfigurer {
         if (storeDir != null && !storeDir.isBlank()) {
             Path store = Path.of(storeDir);
             registry.addResourceHandler("/media/**")
-                    .addResourceLocations("file:%s".formatted(store));
+                    .addResourceLocations("file:%s/".formatted(Path.of(storeDir)));
         }
 
         registry.addResourceHandler("/**")
