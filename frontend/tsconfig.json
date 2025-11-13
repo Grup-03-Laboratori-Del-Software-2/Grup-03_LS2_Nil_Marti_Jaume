@@ -1,7 +1,9 @@
 {
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
   "files": ["vite.config.ts"],
   "exclude": ["node_modules", "dist"],
-  "extends": ["./tsconfig.app.json", "./tsconfig.node.json", "./tsconfig.configs.json"],
-  "esModuleInterop": true,
-  "allowSyntheticDefaultImports": true
+  "extends": ["./tsconfig.app.json", "./tsconfig.node.json", "./tsconfig.configs.json"]
 }
