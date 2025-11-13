@@ -1,52 +1,65 @@
-import { useEffect, useState } from "react";
-import type { Video } from "../types/Video";
+// src/components/VideoGrid.tsx
+import { useState, useEffect } from "react";
+import { getEnv } from "../utils/Env";
+
+// Puede venir un string ("Alpha") o un objeto con id/name/title
+export type Item =
+  | string
+  | {
+  id?: string | number;
+  name?: string;
+  title?: string;
+  [k: string]: any;
+};
 
 export default function VideoGrid() {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [someData, setSomeData] = useState<Item[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/videos");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as Video[];
-        if (!cancelled) setVideos(Array.isArray(data) ? data : []);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Error");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+
+    fetch(`${getEnv().API_BASE_URL}/someEndpoint`)
+      .then((res) => res.json() as Promise<Item[] | any>)
+      .then((data) => {
+        if (cancelled) return;
+
+        // Solo aceptamos arrays, si no, dejamos lista vacía
+        if (Array.isArray(data)) {
+          setSomeData(data as Item[]);
+        } else {
+          setSomeData([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        if (!cancelled) {
+          // estado coherente ante error
+          setSomeData([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (loading) return <p>Loading…</p>;
-  if (error)   return <p style={{ color: "red" }}>Error: {error}</p>;
-  if (!videos.length) return <p>No videos found.</p>;
-
   return (
-    <ul style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-      gap: 16,
-      listStyle: "none",
-      padding: 0
-    }}>
-      {videos.map(v => (
-        <li key={v.id} style={{ cursor: "pointer" }}>
-          <img
-            src={v.thumbnailURL}
-            alt={v.name || `Video ${v.id}`}
-            style={{ width: "100%", borderRadius: 12, display: "block" }}
-          />
-          <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.3 }}>
-            {v.name || "Untitled"}
-          </div>
-        </li>
-      ))}
+    <ul className="row g-4">
+      {someData.map((entity, index) => {
+        // 🔑 key estable (adiós warning)
+        const key =
+          typeof entity === "string"
+            ? `s-${entity}`
+            : entity.id ?? entity.name ?? entity.title ?? index;
+
+        // Texto mostrado en el <li>
+        const text =
+          typeof entity === "string"
+            ? entity
+            : String(entity.name ?? entity.title ?? entity.id ?? "");
+
+        return <li key={String(key)}>{text}</li>;
+      })}
     </ul>
   );
 }
