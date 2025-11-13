@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FiHome, FiTrendingUp, FiClock, FiStar, FiUpload, FiUser, FiGrid, FiMail, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 import { useAllVideos } from '../utils/useAllVideos';
 import { groupByCategory } from '../utils/groupByCategory';
@@ -268,6 +269,8 @@ function ContactSection() {
 
 /* --- Hero + Skeletons + helpers --- */
 function HeroBanner({ video }: { video: Video | null }) {
+  const navigate = useNavigate();
+
   if (!video) return null;
   return (
     <section id="home" className="pt-hero">
@@ -277,13 +280,23 @@ function HeroBanner({ video }: { video: Video | null }) {
         <h1>{video.title}</h1>
         {video.description && <p>{video.description}</p>}
         <div className="pt-hero-buttons">
-          <button className="primary">Reproducir</button>
+          <button
+            className="primary"
+            onClick={() =>
+              navigate(`/watch/${video.id}`, {
+                state: { video },
+              })
+            }
+          >
+            Reproducir
+          </button>
           <button>Más info</button>
         </div>
       </div>
     </section>
   );
 }
+
 
 function Skeletons() {
   return (
