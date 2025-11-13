@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { ApiVideoDetail } from "./types";
+import { useEffect, useState } from 'react';
+import type { ApiVideoDetail } from './types';
 
 export function useVideoDetail(id?: string | number) {
   const [data, setData] = useState<ApiVideoDetail | null>(null);
@@ -7,7 +7,12 @@ export function useVideoDetail(id?: string | number) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) { setData(null); setLoading(false); setError(null); return; }
+    if (!id) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -18,12 +23,14 @@ export function useVideoDetail(id?: string | number) {
         const json = await res.json();
         if (!cancelled) setData(json ?? null);
       } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Error");
+        if (!cancelled) setError(e?.message ?? 'Error');
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   return { data, loading, error };

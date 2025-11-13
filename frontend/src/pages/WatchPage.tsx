@@ -1,30 +1,42 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import type { Video } from "../utils/types";
-import WatchSidebar from "../shared/WatchSidebar";
-import "./watch.css";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import type { Video } from '../utils/types';
+import WatchSidebar from '../shared/WatchSidebar';
+import './watch.css';
 
 type ApiVideoDetail = {
   id: number;
-  videoURL: string;      // ej: /media/0.mp4 (viene del backend)
+  videoURL: string; // ej: /media/0.mp4 (viene del backend)
   name: string;
   username: string;
   description: string;
   dateOfPublish: string;
-  thumbnailURL: string;  // ej: /media/0.webp
+  thumbnailURL: string; // ej: /media/0.webp
   duration: number;
   likes: { username: string }[];
   comments: { id: number; username: string; text: string; dateOfPublish: string }[];
 };
 
-// Helper para forzar absoluta en dev (evita proxy de Vite)
-const ABS = (path?: string) =>
-  !path ? undefined : (import.meta.env.DEV ? `http://localhost:8080${path}` : path);
+type WatchLocationState = {
+  state?: {
+    video?: Video;
+  };
+};
+
+// Helper para forzar absoluta en dev (evita proxy de Vite) sin usar import.meta
+const ABS = (path?: string) => {
+  if (!path) return undefined;
+
+  const isDev =
+    typeof window !== 'undefined' && window.location.hostname === 'localhost' && window.location.port === '5173';
+
+  return isDev ? `http://localhost:8080${path}` : path;
+};
 
 export default function WatchPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation() as any;
+  const location = useLocation() as WatchLocationState;
   const fromState: Video | undefined = location?.state?.video;
 
   const [detail, setDetail] = useState<ApiVideoDetail | null>(null);
@@ -33,32 +45,40 @@ export default function WatchPage() {
 
   useEffect(() => {
     let cancelled = false;
-    if (!id) { setLoading(false); setError("Missing id"); return; }
+
+    if (!id) {
+      setLoading(false);
+      setError('Missing id');
+      return;
+    }
+
     (async () => {
       try {
         setLoading(true);
-        // /api pasa por proxy; OK
         const res = await fetch(`/api/videos/${id}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = (await res.json()) as ApiVideoDetail | null;
         if (!cancelled) setDetail(json);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Error");
+      } catch (e: unknown) {
+        if (!cancelled) {
+          const msg = e instanceof Error ? e.message : 'Error';
+          setError(msg);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   // Preparar UI: título/poster instantáneo (state) + src real (ABS)
   const ui = useMemo(() => {
-    const title = fromState?.title ?? detail?.name ?? "Vídeo";
-    const poster =
-      ABS(detail?.thumbnailURL) ??
-      fromState?.thumbnailUrl ??
-      "/dog.png";
-    const description = detail?.description ?? fromState?.description ?? "";
+    const title = fromState?.title ?? detail?.name ?? 'Vídeo';
+    const poster = ABS(detail?.thumbnailURL) ?? fromState?.thumbnailUrl ?? '/dog.png';
+    const description = detail?.description ?? fromState?.description ?? '';
     const src = ABS(detail?.videoURL); // <- clave para saltar proxy
     return { title, poster, description, src };
   }, [fromState, detail]);
@@ -71,7 +91,7 @@ export default function WatchPage() {
         <WatchSidebar onGoto={() => {}} />
         <main className="pt-watch-main">
           <p>Vídeo no encontrado.</p>
-          <button onClick={() => navigate("/")}>Volver al inicio</button>
+          <button onClick={() => navigate('/')}>Volver al inicio</button>
         </main>
       </div>
     );
@@ -85,18 +105,22 @@ export default function WatchPage() {
         {/* PLAYER */}
         <section id="watch-player" className="pt-watch-section">
           <div className="pt-watch-player">
-            {error && <p style={{ color: "red" }}>Error: {error}</p>}
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
             <video
-              key={`${id}-${ui.src ?? "no-src"}`}   // fuerza recarga al cambiar id/src
+              key={`${id}-${ui.src ?? 'no-src'}`} // fuerza recarga al cambiar id/src
               ref={videoEl}
               controls
               playsInline
               preload="metadata"
               poster={ui.poster}
-              style={{ width: "100%" }}
-              onLoadedMetadata={() => { try { videoEl.current?.load(); } catch {} }}
-              onError={(e) => console.error("video error", e)}
+              style={{ width: '100%' }}
+              onLoadedMetadata={() => {
+                videoEl.current?.load();
+              }}
+              onError={(e) => {
+                console.error('video error', e);
+              }}
             >
               {ui.src && <source src={ui.src} type="video/mp4" />}
             </video>
@@ -111,9 +135,9 @@ export default function WatchPage() {
 
           <div className="pt-channel-row">
             <div className="pt-channel-left">
-              <img src={"/avatar.png"} alt="" className="pt-watch-avatar" />
+              <img src="/avatar.png" alt="" className="pt-watch-avatar" />
               <div>
-                <div className="pt-channel-name">{detail?.username ?? "Canal"}</div>
+                <div className="pt-channel-name">{detail?.username ?? 'Canal'}</div>
                 <div className="pt-channel-subs">—</div>
               </div>
             </div>

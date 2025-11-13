@@ -1,10 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
-export default function WatchSidebar({
-  onGoto,
-}: {
-  onGoto: (k: "player" | "title" | "comments") => void;
-}) {
+export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title' | 'comments') => void }) {
   const navigate = useNavigate();
 
   return (
@@ -16,7 +12,7 @@ export default function WatchSidebar({
         aria-label="ProTube"
         onClick={(e) => {
           e.preventDefault();
-          navigate("/");
+          navigate('/');
         }}
       >
         <img alt="VidFlow" src="/vidflow-logo.png" />
@@ -31,7 +27,7 @@ export default function WatchSidebar({
           className="pt-side-link"
           onClick={(e) => {
             e.preventDefault();
-            navigate("/");
+            navigate('/');
           }}
         >
           <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" height="22" width="22">
@@ -48,7 +44,7 @@ export default function WatchSidebar({
           className="pt-side-link"
           onClick={(e) => {
             e.preventDefault();
-            onGoto("player");
+            onGoto('player');
           }}
         >
           <svg viewBox="0 0 24 24" height="22" width="22" fill="none" stroke="currentColor" strokeWidth="2">
@@ -65,7 +61,7 @@ export default function WatchSidebar({
           className="pt-side-link"
           onClick={(e) => {
             e.preventDefault();
-            onGoto("title");
+            onGoto('title');
           }}
         >
           <svg viewBox="0 0 24 24" height="22" width="22" fill="none" stroke="currentColor" strokeWidth="2">
@@ -81,7 +77,7 @@ export default function WatchSidebar({
           className="pt-side-link"
           onClick={(e) => {
             e.preventDefault();
-            onGoto("comments");
+            onGoto('comments');
           }}
         >
           <svg viewBox="0 0 24 24" height="22" width="22" fill="none" stroke="currentColor" strokeWidth="2">

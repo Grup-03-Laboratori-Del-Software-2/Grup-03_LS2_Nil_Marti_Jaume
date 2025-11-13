@@ -1,16 +1,16 @@
 // src/components/VideoGrid.tsx
-import { useState, useEffect } from "react";
-import { getEnv } from "../utils/Env";
+import { useState, useEffect } from 'react';
+import { getEnv } from '../utils/Env';
 
 // Puede venir un string ("Alpha") o un objeto con id/name/title
 export type Item =
   | string
   | {
-  id?: string | number;
-  name?: string;
-  title?: string;
-  [k: string]: any;
-};
+      id?: string | number;
+      name?: string;
+      title?: string;
+      [k: string]: any;
+    };
 
 export default function VideoGrid() {
   const [someData, setSomeData] = useState<Item[]>([]);
@@ -31,7 +31,7 @@ export default function VideoGrid() {
         }
       })
       .catch((err) => {
-        console.error("Error fetching data:", err);
+        console.error('Error fetching data:', err);
         if (!cancelled) {
           // estado coherente ante error
           setSomeData([]);
@@ -47,16 +47,10 @@ export default function VideoGrid() {
     <ul className="row g-4">
       {someData.map((entity, index) => {
         // 🔑 key estable (adiós warning)
-        const key =
-          typeof entity === "string"
-            ? `s-${entity}`
-            : entity.id ?? entity.name ?? entity.title ?? index;
+        const key = typeof entity === 'string' ? `s-${entity}` : (entity.id ?? entity.name ?? entity.title ?? index);
 
         // Texto mostrado en el <li>
-        const text =
-          typeof entity === "string"
-            ? entity
-            : String(entity.name ?? entity.title ?? entity.id ?? "");
+        const text = typeof entity === 'string' ? entity : String(entity.name ?? entity.title ?? entity.id ?? '');
 
         return <li key={String(key)}>{text}</li>;
       })}

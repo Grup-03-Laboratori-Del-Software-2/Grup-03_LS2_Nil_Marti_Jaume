@@ -1,35 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../auth/useAuth";
-import { FiX } from "react-icons/fi";
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../auth/useAuth';
+import { FiX } from 'react-icons/fi';
 
-export default function AuthModal({
-                                    open,
-                                    onClose,
-                                  }: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export default function AuthModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { signIn, signUp, loading } = useAuth();
-  const [tab, setTab] = useState<"login" | "register">("login");
+  const [tab, setTab] = useState<'login' | 'register'>('login');
 
   // login
-  const [emailL, setEmailL] = useState("");
-  const [passL, setPassL] = useState("");
+  const [emailL, setEmailL] = useState('');
+  const [passL, setPassL] = useState('');
 
   // register
-  const [nameR, setNameR] = useState("");
-  const [surnameR, setSurnameR] = useState("");
-  const [emailR, setEmailR] = useState("");
-  const [passR, setPassR] = useState("");
-  const [dobR, setDobR] = useState(""); // YYYY-MM-DD
+  const [nameR, setNameR] = useState('');
+  const [surnameR, setSurnameR] = useState('');
+  const [emailR, setEmailR] = useState('');
+  const [passR, setPassR] = useState('');
+  const [dobR, setDobR] = useState(''); // YYYY-MM-DD
 
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -41,7 +35,7 @@ export default function AuthModal({
       await signIn(emailL, passL);
       onClose();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Login error";
+      const msg = e instanceof Error ? e.message : 'Login error';
       setErr(msg);
     }
   };
@@ -54,7 +48,7 @@ export default function AuthModal({
       await signUp(nameR, surnameR, emailR, passR, iso);
       onClose();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Register error";
+      const msg = e instanceof Error ? e.message : 'Register error';
       setErr(msg);
     }
   };
@@ -69,15 +63,25 @@ export default function AuthModal({
         </div>
 
         <div className="pt-tabbar" role="tablist" aria-label="Autenticación">
-          <button className={tab === "login" ? "active" : ""} onClick={() => setTab("login")} role="tab" aria-selected={tab === "login"}>
+          <button
+            className={tab === 'login' ? 'active' : ''}
+            onClick={() => setTab('login')}
+            role="tab"
+            aria-selected={tab === 'login'}
+          >
             Iniciar sesión
           </button>
-          <button className={tab === "register" ? "active" : ""} onClick={() => setTab("register")} role="tab" aria-selected={tab === "register"}>
+          <button
+            className={tab === 'register' ? 'active' : ''}
+            onClick={() => setTab('register')}
+            role="tab"
+            aria-selected={tab === 'register'}
+          >
             Crear cuenta
           </button>
         </div>
 
-        {tab === "login" ? (
+        {tab === 'login' ? (
           <form onSubmit={handleLogin} className="pt-form">
             <label>
               Email
@@ -89,7 +93,7 @@ export default function AuthModal({
             </label>
             {err && <p className="pt-form-error">{err}</p>}
             <button className="pt-cta" disabled={loading} type="submit">
-              {loading ? "Entrando…" : "Entrar"}
+              {loading ? 'Entrando…' : 'Entrar'}
             </button>
           </form>
         ) : (
@@ -116,7 +120,7 @@ export default function AuthModal({
             </label>
             {err && <p className="pt-form-error">{err}</p>}
             <button className="pt-cta" disabled={loading} type="submit">
-              {loading ? "Creando…" : "Crear cuenta"}
+              {loading ? 'Creando…' : 'Crear cuenta'}
             </button>
           </form>
         )}

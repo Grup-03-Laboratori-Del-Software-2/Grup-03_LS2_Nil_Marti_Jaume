@@ -1,24 +1,18 @@
-import React, { useMemo } from "react";
-import type { Video } from "../utils/types";
-import { useComments } from "../utils/useComments";
-import { FiX, FiMessageCircle } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import "./video-card.css";
+import React, { useMemo } from 'react';
+import type { Video } from '../utils/types';
+import { useComments } from '../utils/useComments';
+import { FiX, FiMessageCircle } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import './video-card.css';
 
-export default function VideoDetail({
-  video,
-  onClose,
-}: {
-  video: Video;
-  onClose: () => void;
-}) {
+export default function VideoDetail({ video, onClose }: { video: Video; onClose: () => void }) {
   const { comments, loading, error } = useComments(video.id);
 
   const bgImage = useMemo(
     () =>
       video.thumbnailUrl
         ? `linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.85) 60%), url("${video.thumbnailUrl}")`
-        : "none",
+        : 'none',
     [video.thumbnailUrl]
   );
 
@@ -35,17 +29,12 @@ export default function VideoDetail({
             {/* MINIATURA + OVERLAY PLAY */}
             <Link
               to={`/watch/${video.id}`}
-              state={{ video }}               // <- disponible en WatchPage con useLocation().state.video
+              state={{ video }} // <- disponible en WatchPage con useLocation().state.video
               className="pt-thumb-wrap"
               aria-label={`Reproducir ${video.title}`}
-              onClick={onClose}              // opcional: cierra el modal al navegar
+              onClick={onClose} // opcional: cierra el modal al navegar
             >
-              <img
-                src={video.thumbnailUrl}
-                alt={video.title}
-                className="pt-detail-thumb"
-                loading="eager"
-              />
+              <img src={video.thumbnailUrl} alt={video.title} className="pt-detail-thumb" loading="eager" />
               <span className="pt-play-cta">
                 <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
                   <path d="M8 5v14l11-7z" fill="currentColor"></path>
@@ -59,12 +48,8 @@ export default function VideoDetail({
               {video.description && <p className="pt-detail-desc">{video.description}</p>}
               <div className="pt-detail-tags">
                 {video.channel && <span>{video.channel}</span>}
-                {typeof video.views === "number" && (
-                  <span>{video.views.toLocaleString()} visualizaciones</span>
-                )}
-                {typeof video.durationSec === "number" && (
-                  <span>{formatMinSec(video.durationSec)}</span>
-                )}
+                {typeof video.views === 'number' && <span>{video.views.toLocaleString()} visualizaciones</span>}
+                {typeof video.durationSec === 'number' && <span>{formatMinSec(video.durationSec)}</span>}
               </div>
             </div>
           </div>
@@ -75,7 +60,7 @@ export default function VideoDetail({
           <section className="pt-comments">
             <header className="pt-comments-head">
               <h2>
-                <FiMessageCircle style={{ verticalAlign: "-2px", marginRight: 6 }} />
+                <FiMessageCircle style={{ verticalAlign: '-2px', marginRight: 6 }} />
                 Comentarios
               </h2>
               {loading && <span className="pt-comments-badge">Cargando…</span>}
@@ -91,9 +76,7 @@ export default function VideoDetail({
                     <div className="pt-comment-body">
                       <div className="pt-comment-head">
                         <strong>{c.author}</strong>
-                        <span className="pt-comment-date">
-                          {new Date(c.createdAt).toLocaleDateString()}
-                        </span>
+                        <span className="pt-comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
                       </div>
                       <p>{c.text}</p>
                     </div>
@@ -113,5 +96,5 @@ export default function VideoDetail({
 function formatMinSec(sec: number) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
 }
