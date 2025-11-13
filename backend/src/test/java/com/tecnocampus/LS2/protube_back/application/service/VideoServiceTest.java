@@ -7,12 +7,13 @@ import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
 import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
 import org.junit.jupiter.api.BeforeEach;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VideoServiceTest {
 
@@ -35,8 +36,9 @@ class VideoServiceTest {
         List<VideoDTO> result = videoService.getVideos();
 
         assertEquals(2, result.size());
-        assertEquals("thumb1", result.get(0).thumbnailURL());
-        assertEquals("thumb2", result.get(1).thumbnailURL());
+        // El servei afegeix el prefix "/media/"
+        assertEquals("/media/thumb1", result.get(0).thumbnailURL());
+        assertEquals("/media/thumb2", result.get(1).thumbnailURL());
     }
 
     @Test
@@ -47,7 +49,8 @@ class VideoServiceTest {
         Optional<VideoDetailDTO> result = videoService.getVideoDetail(1L);
 
         assertTrue(result.isPresent());
-        assertEquals("url", result.get().videoURL());
+        // Aquí també, el servei retorna "/media/url"
+        assertEquals("/media/url", result.get().videoURL());
         assertEquals("name", result.get().name());
     }
 
@@ -59,7 +62,6 @@ class VideoServiceTest {
 
         assertTrue(result.isEmpty());
     }
-
 
     @Test
     void loadVideosFromDisk_validFolder_parsesFiles() {
