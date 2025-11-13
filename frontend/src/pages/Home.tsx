@@ -297,7 +297,6 @@ function HeroBanner({ video }: { video: Video | null }) {
   );
 }
 
-
 function Skeletons() {
   return (
     <div className="pt-skeletons">

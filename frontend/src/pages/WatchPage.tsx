@@ -6,12 +6,12 @@ import './watch.css';
 
 type ApiVideoDetail = {
   id: number;
-  videoURL: string;      // ej: /media/0.mp4
+  videoURL: string; // ej: /media/0.mp4
   name: string;
   username: string;
   description: string;
   dateOfPublish: string;
-  thumbnailURL: string;  // ej: /media/0.webp
+  thumbnailURL: string; // ej: /media/0.webp
   duration: number;
   likes: { username: string }[];
   comments: { id: number; username: string; text: string; dateOfPublish: string }[];
