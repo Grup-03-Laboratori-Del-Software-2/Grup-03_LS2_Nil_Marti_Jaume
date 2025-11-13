@@ -1,12 +1,12 @@
-export type Video = {
-  id: string;
-  title: string;
-  description?: string;
-  thumbnailUrl: string;
-  previewUrl?: string;
-  category?: string;
-  durationSec?: number;
-  views?: number;
-  createdAt?: string;
-  owner?: { id: string; name: string; avatarUrl?: string };
-};
+export interface ApiVideoDetail {
+  id: number;
+  videoURL: string;
+  name: string;
+  username: string;
+  description: string;
+  dateOfPublish: string;
+  thumbnailURL: string; // /media/xxx.webp
+  duration: number; // segundos
+  likes: { username: string }[];
+  comments: { id: number; username: string; text: string; dateOfPublish: string }[];
+}

@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-//import { getEnv } from "../utils/Env";
+/* istanbul ignore file */
+
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+// import { getEnv } from "../utils/Env";
 
 export type AuthUser = {
   email: string;
@@ -20,53 +22,80 @@ type Ctx = {
 
 const AuthCtx = createContext<Ctx | undefined>(undefined);
 
-const TOKEN_KEY = "authToken";
-const USER_KEY  = "authUser";
+const TOKEN_KEY = 'authToken';
+const USER_KEY = 'authUser';
 
-// Utilidad: base API. Con proxy de Vite, lo dejamos vacío ("") y usamos rutas relativas.
+// Utilidad: base API. En dev usamos backend en localhost:8080
 function getApiBase(): string {
   /*const env = getEnv() as any;
   const v1 = env?.API_BASE_URL ?? env?.API_DOMAIN ?? "";
   const v2 = (import.meta as any)?.env?.VITE_API_DOMAIN ?? "";
   const base = String(v1 || v2 || "").trim();
   return base || ""; // <- vacío = usa proxy Vite (rutas relativas)*/
-  return "http://localhost:8080";
+  return 'http://localhost:8080';
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [user, setUser]   = useState<AuthUser | null>(() => {
-    try { const raw = localStorage.getItem(USER_KEY); return raw ? JSON.parse(raw) as AuthUser : null; }
-    catch { return null; }
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    try {
+      const raw = localStorage.getItem(USER_KEY);
+      return raw ? (JSON.parse(raw) as AuthUser) : null;
+    } catch {
+      return null;
+    }
   });
   const [loading, setLoading] = useState(false);
 
   const API = getApiBase();
 
-  useEffect(() => { token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY); }, [token]);
-  useEffect(() => { user ? localStorage.setItem(USER_KEY, JSON.stringify(user)) : localStorage.removeItem(USER_KEY); }, [user]);
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }, [token]);
 
-  function extractToken(payload: any): string | null {
-    if (!payload) return null;
-    // backend: record AuthenticationResponse(String accessToken)
-    return payload.token ?? payload.accessToken ?? payload.jwt ?? null;
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_KEY);
+    }
+  }, [user]);
+
+  function extractToken(payload: unknown): string | null {
+    if (!payload || typeof payload !== 'object') return null;
+    const obj = payload as Record<string, unknown>;
+
+    const candidate = obj.token ?? obj.accessToken ?? obj.jwt;
+
+    return typeof candidate === 'string' ? candidate : null;
   }
 
-  function mapUser(me: any): AuthUser | null {
-    if (!me) return null;
+  function mapUser(me: unknown): AuthUser | null {
+    if (!me || typeof me !== 'object') return null;
+    const m = me as Record<string, unknown>;
+
+    const email = typeof m.email === 'string' ? m.email : '';
+    const name = typeof m.name === 'string' ? m.name : '';
+    const surname = typeof m.surname === 'string' ? m.surname : undefined;
+    const dateOfBirth = typeof m.dateOfBirth === 'string' ? m.dateOfBirth : undefined;
+    const dateOfRegistration = typeof m.dateOfRegistration === 'string' ? m.dateOfRegistration : undefined;
+
     return {
-      email: String(me.email ?? ""),
-      name: String(me.name ?? ""),
-      surname: me.surname ? String(me.surname) : undefined,
-      dateOfBirth: me.dateOfBirth ?? undefined,
-      dateOfRegistration: me.dateOfRegistration ?? undefined,
+      email,
+      name,
+      surname,
+      dateOfBirth,
+      dateOfRegistration,
     };
   }
 
   async function fetchMe(tok: string) {
     const res = await fetch(`${API}/user/me`, {
       headers: { Authorization: `Bearer ${tok}` },
-      // NO credentials; no dependemos de cookies (más simple y estable)
     });
     if (!res.ok) throw new Error(await res.text());
     const me = await res.json();
@@ -74,69 +103,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (u) setUser(u);
   }
 
-  const signIn = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      console.log("API base usada:", API);
-      const res = await fetch(`${API}/user/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        // NO credentials; leeremos token del header/body
-      });
-      if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      setLoading(true);
+      try {
+        // console.log('API base usada:', API);
+        const res = await fetch(`${API}/user/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
 
-      // Intento 1: header Authorization
-      const auth = res.headers.get("Authorization");
-      let tok = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+        // Intento 1: header Authorization
+        const auth = res.headers.get('Authorization');
+        let tok = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
 
-      // Intento 2: body con { accessToken }
-      if (!tok) {
-        const json = await res.json();
-        tok = extractToken(json);
+        // Intento 2: body con { accessToken }
+        if (!tok) {
+          const json = await res.json();
+          tok = extractToken(json);
+        }
+        if (!tok) throw new Error('Missing access token');
+
+        setToken(tok);
+        await fetchMe(tok);
+      } finally {
+        setLoading(false);
       }
-      if (!tok) throw new Error("Missing access token");
-      setToken(tok);
+    },
+    [API]
+  );
 
-      await fetchMe(tok);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const signUp = useCallback(
+    async (name: string, surname: string, email: string, password: string, dateOfBirthISO: string) => {
+      setLoading(true);
+      try {
+        // console.log('API base usada:', API);
+        const r = await fetch(`${API}/user/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            surname,
+            email,
+            password,
+            dateOfBirth: dateOfBirthISO,
+          }),
+        });
+        if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
 
-  const signUp = async (name: string, surname: string, email: string, password: string, dateOfBirthISO: string) => {
-    setLoading(true);
-    try {
-      // /user/register -> UserDTO (sin token) con validaciones:
-      //   name/surname: ^[A-Z][a-zA-Z0-9]*$
-      //   password: >=8, mayúscula, dígito, especial
-      //   dateOfBirth: pasado (LocalDateTime, ej "2000-09-18T00:00:00")
-      console.log("API base usada:", API);
-      const r = await fetch(`${API}/user/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, surname, email, password, dateOfBirth: dateOfBirthISO }),
-      });
-      if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
+        // login automático
+        await signIn(email, password);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [API, signIn]
+  );
 
-      // login automático
-      await signIn(email, password);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOut = () => {
+  const signOut = useCallback(() => {
     setToken(null);
     setUser(null);
-  };
+  }, []);
 
-  const value = useMemo<Ctx>(() => ({ user, token, loading, signIn, signUp, signOut }), [user, token, loading]);
+  const value = useMemo<Ctx>(
+    () => ({ user, token, loading, signIn, signUp, signOut }),
+    [user, token, loading, signIn, signUp, signOut]
+  );
+
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthCtx);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 }

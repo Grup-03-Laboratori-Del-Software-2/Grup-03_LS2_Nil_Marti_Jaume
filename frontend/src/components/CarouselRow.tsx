@@ -1,8 +1,8 @@
-import { useRef } from "react";
-import type { Video } from "../utils/types";
-import VideoCard from "./VideoCard";
-import "./carousel-row.css";
-import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
+import { useRef } from 'react';
+import type { Video } from '../utils/types';
+import VideoCard from './VideoCard';
+import './carousel-row.css';
+import { FiChevronRight, FiChevronLeft } from 'react-icons/fi';
 
 type Props = {
   id: string;
@@ -14,11 +14,11 @@ type Props = {
 export default function CarouselRow({ id, title, videos, onSelect }: Props) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
-  const scroll = (dir: "left" | "right") => {
+  const scroll = (dir: 'left' | 'right') => {
     const el = scrollerRef.current;
     if (!el) return;
     const amount = Math.min(el.clientWidth * 0.9, 800);
-    el.scrollBy({ left: dir === "right" ? amount : -amount, behavior: "smooth" });
+    el.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
   };
 
   if (!videos.length) return null;
@@ -31,12 +31,8 @@ export default function CarouselRow({ id, title, videos, onSelect }: Props) {
       </div>
 
       <div className="pt-row-wrap">
-        <button
-          aria-label="Scroll left"
-          onClick={() => scroll("left")}
-          className="pt-row-arrow left"
-        >
-          <FiChevronLeft size={20} style={{ verticalAlign: "middle" }} />
+        <button aria-label="Scroll left" onClick={() => scroll('left')} className="pt-row-arrow left">
+          <FiChevronLeft size={20} style={{ verticalAlign: 'middle' }} />
         </button>
 
         {/* Forzamos fila horizontal y snap */}
@@ -44,21 +40,21 @@ export default function CarouselRow({ id, title, videos, onSelect }: Props) {
           ref={scrollerRef}
           className="pt-row-scroller"
           style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "12px",
-            overflowX: "auto",
-            overflowY: "hidden",
-            scrollBehavior: "smooth",
-            scrollSnapType: "x mandatory",
-            paddingBottom: "6px",
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '12px',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory',
+            paddingBottom: '6px',
           }}
         >
           {videos.map((v) => (
             <div
               key={v.id}
               className="pt-row-item"
-              style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}
+              style={{ flex: '0 0 auto', scrollSnapAlign: 'start' }}
               onClick={onSelect ? () => onSelect(v) : undefined}
             >
               <VideoCard video={v} />
@@ -66,12 +62,8 @@ export default function CarouselRow({ id, title, videos, onSelect }: Props) {
           ))}
         </div>
 
-        <button
-          aria-label="Scroll right"
-          onClick={() => scroll("right")}
-          className="pt-row-arrow right"
-        >
-          <FiChevronRight size={20} style={{ verticalAlign: "middle" }} />
+        <button aria-label="Scroll right" onClick={() => scroll('right')} className="pt-row-arrow right">
+          <FiChevronRight size={20} style={{ verticalAlign: 'middle' }} />
         </button>
       </div>
     </section>

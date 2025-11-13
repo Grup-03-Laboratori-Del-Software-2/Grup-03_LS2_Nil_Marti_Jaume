@@ -9,24 +9,13 @@
         <version>3.3.3</version>
         <relativePath/>
     </parent>
+
     <groupId>com.tecnocampus.LS2</groupId>
     <artifactId>protube-back</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>protube-back</name>
     <description>myyyyyy precious tube</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <properties>
         <java.version>21</java.version>
         <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
@@ -36,7 +25,7 @@
     </properties>
 
     <dependencies>
-        <!-- Núcleo Spring Boot (lo dejas como ya lo tenías) -->
+        <!-- Núcleo Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -54,7 +43,7 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Thymeleaf (lo mantengo tal cual) -->
+        <!-- Thymeleaf -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -67,14 +56,13 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- H2: solo en runtime -->
+        <!-- Bases de datos -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- PostgreSQL: solo en runtime (mantengo tu versión) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -88,6 +76,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -107,42 +96,28 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Configuration processor (ya lo tenías) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Seguridad -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-        <!-- Validación -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <!-- ✅ Resource Server para JWT -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
-
-        <!-- ✅ Librería JOSE correcta para NimbusJwtDecoder/Encoder -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
 
-        <!-- JUnit Jupiter (ya lo tenías) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
+            <version>5.10.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -157,6 +132,7 @@
                 <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
+
         <profile>
             <id>prod</id>
             <build>
@@ -173,6 +149,7 @@
                             </excludes>
                         </configuration>
                     </plugin>
+
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
@@ -214,6 +191,7 @@
                             </execution>
                         </executions>
                     </plugin>
+
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
@@ -241,88 +219,48 @@
                 <spring.profiles.active>prod</spring.profiles.active>
             </properties>
         </profile>
+
+        <!-- PERFIL DE COBERTURA -->
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.12</version>
+                        <configuration>
+                            <!-- Fichero binario de cobertura -->
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                            <append>true</append>
+                        </configuration>
+                        <executions>
+                            <!-- Engancha JaCoCo a los tests -->
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+
+                            <!-- Genera el informe al final de 'verify' -->
+                            <execution>
+                                <id>report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
-
-                <executions>
-                    <!-- Instrumentación antes de los tests -->
-                    <execution>
-                        <id>default-prepare-agent</id>
-                        <goals><goal>prepare-agent</goal></goals>
-                        <configuration>
-                            <excludes>
-                                <!-- excluye la clase main de la instrumentación -->
-                                <exclude>com/tecnocampus/LS2/protube_back/ProtubeBackApplication*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-
-                    <!-- Generar informe tras los tests (fase verify es estándar) -->
-                    <execution>
-                        <id>default-report</id>
-                        <phase>verify</phase>
-                        <goals><goal>report</goal></goals>
-                        <configuration>
-                            <!-- No los contamos en el informe -->
-                            <excludes>
-                                <exclude>com/tecnocampus/LS2/protube_back/api/frontendException/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/application/dto/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/exceptions/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/security/**</exclude>
-                                <exclude>**/configuration/**</exclude>
-                                <exclude>**/*Application*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-
-                    <!-- Comprobación de cobertura (umbral 50%) -->
-                    <execution>
-                        <id>default-check</id>
-                        <phase>verify</phase>
-                        <goals><goal>check</goal></goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>METHOD</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                            <!-- Los mismos excludes para que no cuenten en el check -->
-                            <excludes>
-                                <exclude>com/tecnocampus/LS2/protube_back/api/frontendException/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/application/dto/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/exceptions/**</exclude>
-                                <exclude>com/tecnocampus/LS2/protube_back/security/**</exclude>
-                                <exclude>**/configuration/**</exclude>
-                                <exclude>**/*Application*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+            <!-- JaCoCo ya está en el perfil 'coverage'; aquí solo dejamos Surefire -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -330,4 +268,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

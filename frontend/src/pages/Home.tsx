@@ -1,24 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  FiHome,
-  FiTrendingUp,
-  FiClock,
-  FiStar,
-  FiUpload,
-  FiUser,
-  FiGrid,
-  FiMail,
-  FiLogOut,
-} from "react-icons/fi";
+import { useEffect, useMemo, useState } from 'react';
+import { FiHome, FiTrendingUp, FiClock, FiStar, FiUpload, FiUser, FiGrid, FiMail, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
-import { useAllVideos } from "../utils/useAllVideos";
-import { groupByCategory } from "../utils/groupByCategory";
-import type { Video } from "../utils/types";
-import CarouselRow from "../components/CarouselRow";
-import AuthModal from "../components/AuthModal";
-import { useAuth } from "../auth/useAuth";
-import VideoDetail from "../components/VideoDetail";
-import "./home.css";
+import { useAllVideos } from '../utils/useAllVideos';
+import { groupByCategory } from '../utils/groupByCategory';
+import type { Video } from '../utils/types';
+import CarouselRow from '../components/CarouselRow';
+import AuthModal from '../components/AuthModal';
+import { useAuth } from '../auth/useAuth';
+import VideoDetail from '../components/VideoDetail';
+import './home.css';
 
 export default function Home() {
   const { data: videos, loading, error } = useAllVideos();
@@ -41,10 +32,10 @@ export default function Home() {
               {Object.entries(sections).map(([label, vids]) => (
                 <CarouselRow
                   key={label}
-                  id={label.toLowerCase().replace(/\s+/g, "-")}
+                  id={label.toLowerCase().replace(/\s+/g, '-')}
                   title={label}
                   videos={vids}
-                  onSelect={(v) => setSelected(v)} 
+                  onSelect={(v) => setSelected(v)}
                 />
               ))}
             </div>
@@ -52,9 +43,7 @@ export default function Home() {
             <AllVideosSection videos={videos} onSelect={(v) => setSelected(v)} />
             <ContactSection />
 
-            {!videos.length && !error && (
-              <div className="pt-empty">No hay vídeos todavía.</div>
-            )}
+            {!videos.length && !error && <div className="pt-empty">No hay vídeos todavía.</div>}
             {error && !videos.length && <div className="pt-error">{error}</div>}
           </>
         )}
@@ -62,37 +51,22 @@ export default function Home() {
       <footer className="pt-footer">© {new Date().getFullYear()} ProTube</footer>
 
       {/* Modal detalle */}
-      {selected && (
-        <VideoDetail video={selected} onClose={() => setSelected(null)} />
-      )}
+      {selected && <VideoDetail video={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
 
 /* --- Sidebar --- */
 function SideNav() {
-  type TabId =
-    | "home"
-    | "trending"
-    | "recently-added"
-    | "recommended"
-    | "all"
-    | "contact";
+  type TabId = 'home' | 'trending' | 'recently-added' | 'recommended' | 'all' | 'contact';
 
-  const [active, setActive] = useState<TabId>("home");
+  const [active, setActive] = useState<TabId>('home');
   const [authOpen, setAuthOpen] = useState(false);
   const { user, signOut } = useAuth();
 
   useEffect(() => {
-    const raw = (window.location.hash || "#home").slice(1) as TabId;
-    const allowed: TabId[] = [
-      "home",
-      "trending",
-      "recently-added",
-      "recommended",
-      "all",
-      "contact",
-    ];
+    const raw = (window.location.hash || '#home').slice(1) as TabId;
+    const allowed: TabId[] = ['home', 'trending', 'recently-added', 'recommended', 'all', 'contact'];
     if (allowed.includes(raw)) setActive(raw);
   }, []);
 
@@ -100,26 +74,18 @@ function SideNav() {
     setActive(id);
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      history.replaceState(null, "", `#${id}`);
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', `#${id}`);
     }
   };
 
-  const Link = ({
-    id,
-    title,
-    Icon,
-  }: {
-    id: TabId;
-    title: string;
-    Icon: React.ComponentType<{ size?: number }>;
-  }) => (
+  const Link = ({ id, title, Icon }: { id: TabId; title: string; Icon: React.ComponentType<{ size?: number }> }) => (
     <a
       href={`#${id}`}
       title={title}
       aria-label={title}
-      aria-current={active === id ? "page" : undefined}
-      className={`pt-side-link ${active === id ? "active" : ""}`}
+      aria-current={active === id ? 'page' : undefined}
+      className={`pt-side-link ${active === id ? 'active' : ''}`}
       onClick={(e) => {
         e.preventDefault();
         smoothGo(id);
@@ -138,7 +104,7 @@ function SideNav() {
           aria-label="ProTube"
           onClick={(e) => {
             e.preventDefault();
-            smoothGo("home");
+            smoothGo('home');
           }}
         >
           <img src="/vidflow-logo.png" alt="ProTube" />
@@ -186,22 +152,16 @@ function SideNav() {
 }
 
 /* --- Secciones --- */
-function AllVideosSection({
-  videos,
-  onSelect,
-}: {
-  videos: Video[];
-  onSelect: (v: Video) => void;
-}) {
+function AllVideosSection({ videos, onSelect }: { videos: Video[]; onSelect: (v: Video) => void }) {
   return (
-    <section id="all" style={{ marginTop: "2.5rem" }}>
-      <h2 style={{ fontSize: "1.25rem", margin: "0 0 .75rem" }}>Todos los vídeos</h2>
+    <section id="all" style={{ marginTop: '2.5rem' }}>
+      <h2 style={{ fontSize: '1.25rem', margin: '0 0 .75rem' }}>Todos los vídeos</h2>
       {videos.length ? (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: "12px",
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: '12px',
           }}
         >
           {videos.map((v) => (
@@ -215,27 +175,21 @@ function AllVideosSection({
   );
 }
 
-function AllVideoTile({
-  video,
-  onClick,
-}: {
-  video: Video;
-  onClick: () => void;
-}) {
+function AllVideoTile({ video, onClick }: { video: Video; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       style={{
-        display: "block",
-        background: "rgba(255,255,255,.06)",
+        display: 'block',
+        background: 'rgba(255,255,255,.06)',
         borderRadius: 10,
-        overflow: "hidden",
-        textDecoration: "none",
-        color: "inherit",
+        overflow: 'hidden',
+        textDecoration: 'none',
+        color: 'inherit',
         border: 0,
         padding: 0,
-        textAlign: "left",
-        cursor: "pointer",
+        textAlign: 'left',
+        cursor: 'pointer',
       }}
       title={video.title}
     >
@@ -243,23 +197,23 @@ function AllVideoTile({
         src={video.thumbnailUrl}
         alt={video.title}
         loading="lazy"
-        style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }}
+        style={{ width: '100%', height: 130, objectFit: 'cover', display: 'block' }}
       />
-      <div style={{ padding: "8px 10px" }}>
+      <div style={{ padding: '8px 10px' }}>
         <div
           style={{
             fontWeight: 600,
-            fontSize: ".95rem",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            fontSize: '.95rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           {video.title}
         </div>
-        <div style={{ opacity: 0.8, fontSize: ".8rem", marginTop: 2 }}>
-          {video.durationSec != null ? formatMinSec(video.durationSec) : "—"}
-          {typeof video.views === "number" ? ` • ${video.views.toLocaleString()} views` : ""}
+        <div style={{ opacity: 0.8, fontSize: '.8rem', marginTop: 2 }}>
+          {video.durationSec != null ? formatMinSec(video.durationSec) : '—'}
+          {typeof video.views === 'number' ? ` • ${video.views.toLocaleString()} views` : ''}
         </div>
       </div>
     </button>
@@ -275,30 +229,36 @@ function ContactSection() {
           <div className="pt-contact-card">
             <h3>ProTube</h3>
             <p>
-              Plataforma de vídeos del equipo. Interfaz de ejemplo estilo Netflix con filas por
-              categorías y lista completa al final.
+              Plataforma de vídeos del equipo. Interfaz de ejemplo estilo Netflix con filas por categorías y lista
+              completa al final.
             </p>
           </div>
           <div className="pt-contact-card">
             <h3>Contacto</h3>
             <ul>
-              <li>Email: <a href="mailto:contact@protube.dev">contact@protube.dev</a></li>
-              <li>Soporte: <a href="mailto:support@protube.dev">support@protube.dev</a></li>
               <li>
-                GitHub:{" "}
+                Email: <a href="mailto:contact@protube.dev">contact@protube.dev</a>
+              </li>
+              <li>
+                Soporte: <a href="mailto:support@protube.dev">support@protube.dev</a>
+              </li>
+              <li>
+                GitHub:{' '}
                 <a
                   href="https://github.com/Grup-03-Laboratori-Del-Software-2/Grup-03_LS2_Nil_Marti_Jaume"
                   target="_blank"
                   rel="noreferrer"
-                >repositorio del proyecto</a>
+                >
+                  repositorio del proyecto
+                </a>
               </li>
             </ul>
           </div>
           <div className="pt-contact-card">
             <h3>Estado del backend</h3>
             <p>
-              En desarrollo. Esta demo usa datos simulados (mocks). Cuando el API esté disponible,
-              cambia <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code>.
+              En desarrollo. Esta demo usa datos simulados (mocks). Cuando el API esté disponible, cambia{' '}
+              <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code>.
             </p>
           </div>
         </div>
@@ -309,6 +269,8 @@ function ContactSection() {
 
 /* --- Hero + Skeletons + helpers --- */
 function HeroBanner({ video }: { video: Video | null }) {
+  const navigate = useNavigate();
+
   if (!video) return null;
   return (
     <section id="home" className="pt-hero">
@@ -318,7 +280,16 @@ function HeroBanner({ video }: { video: Video | null }) {
         <h1>{video.title}</h1>
         {video.description && <p>{video.description}</p>}
         <div className="pt-hero-buttons">
-          <button className="primary">Reproducir</button>
+          <button
+            className="primary"
+            onClick={() =>
+              navigate(`/watch/${video.id}`, {
+                state: { video },
+              })
+            }
+          >
+            Reproducir
+          </button>
           <button>Más info</button>
         </div>
       </div>
@@ -346,5 +317,5 @@ function Skeletons() {
 function formatMinSec(sec: number) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
 }
