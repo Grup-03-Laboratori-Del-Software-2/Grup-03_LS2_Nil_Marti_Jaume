@@ -16,22 +16,13 @@ describe('CarouselRow', () => {
 
     const handleSelect = jest.fn();
 
-    render(
-      <CarouselRow
-        id="test-row"
-        title="Secció test"
-        videos={videos}
-        onSelect={handleSelect}
-      />,
-    );
+    render(<CarouselRow id="test-row" title="Secció test" videos={videos} onSelect={handleSelect} />);
 
-    // Títol de la secció
     expect(screen.getByText('Secció test')).toBeInTheDocument();
-    // Targeta del vídeo
+
     const card = screen.getByTitle('Video 1');
     expect(card).toBeInTheDocument();
 
-    // Click -> ha de cridar onSelect amb el vídeo
     fireEvent.click(card);
     expect(handleSelect).toHaveBeenCalledTimes(1);
     expect(handleSelect).toHaveBeenCalledWith(videos[0]);

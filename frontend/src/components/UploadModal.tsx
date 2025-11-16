@@ -61,7 +61,7 @@ export default function UploadModal({ open, onClose, token, username, onUploaded
       setDuration('');
       setVideoFile(null);
       setThumbFile(null);
-    } catch (e) {
+    } catch {
       setError('Error al subir el vídeo');
     } finally {
       setSubmitting(false);
@@ -171,11 +171,7 @@ export default function UploadModal({ open, onClose, token, username, onUploaded
             />
           </label>
 
-          {error && (
-            <div style={{ color: '#fca5a5', fontSize: '.85rem', marginTop: '.25rem' }}>
-              {error}
-            </div>
-          )}
+          {error && <div style={{ color: '#fca5a5', fontSize: '.85rem', marginTop: '.25rem' }}>{error}</div>}
 
           <div
             style={{

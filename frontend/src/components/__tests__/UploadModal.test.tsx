@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import UploadModal from '../UploadModal';
 
 afterEach(() => {
@@ -8,38 +8,19 @@ afterEach(() => {
 
 describe('UploadModal', () => {
   it('no renderiza nada si open es false', () => {
-    const { container } = render(
-      <UploadModal
-        open={false}
-        onClose={() => {}}
-        token={null}
-        username="user"
-      />
-    );
+    const { container } = render(<UploadModal open={false} onClose={() => {}} token={null} username="user" />);
     expect(container.firstChild).toBeNull();
   });
 
   it('muestra error si faltan campos obligatorios y no llama a fetch', async () => {
     (global as any).fetch = jest.fn();
 
-    render(
-      <UploadModal
-        open={true}
-        onClose={() => {}}
-        token={null}
-        username="user"
-      />
-    );
+    render(<UploadModal open={true} onClose={() => {}} token={null} username="user" />);
 
-    // No rellenamos nada, submit directo
-    fireEvent.submit(
-      screen.getByRole('button', { name: /Subir/i })
-    );
+    fireEvent.submit(screen.getByRole('button', { name: /Subir/i }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Faltan campos obligatorios')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Faltan campos obligatorios')).toBeInTheDocument();
     });
 
     expect(global.fetch).not.toHaveBeenCalled();
@@ -54,17 +35,8 @@ describe('UploadModal', () => {
       status: 201,
     });
 
-    render(
-      <UploadModal
-        open={true}
-        onClose={onClose}
-        token="my-token"
-        username="tester"
-        onUploaded={onUploaded}
-      />
-    );
+    render(<UploadModal open={true} onClose={onClose} token="my-token" username="tester" onUploaded={onUploaded} />);
 
-    // Rellenamos campos de texto
     fireEvent.change(screen.getByLabelText(/Título/i), {
       target: { value: 'Mi vídeo' },
     });
@@ -75,27 +47,16 @@ describe('UploadModal', () => {
       target: { value: '120' },
     });
 
-    // Simulamos ficheros
-    const videoFile = new File(['dummy'], 'video.mp4', {
-      type: 'video/mp4',
-    });
-    const thumbFile = new File(['dummy'], 'thumb.webp', {
-      type: 'image/webp',
-    });
+    const videoFile = new File(['dummy'], 'video.mp4', { type: 'video/mp4' });
+    const thumbFile = new File(['dummy'], 'thumb.webp', { type: 'image/webp' });
 
     const videoInput = screen.getByLabelText(/Archivo de vídeo/i);
     const thumbInput = screen.getByLabelText(/Miniatura/i);
 
-    fireEvent.change(videoInput, {
-      target: { files: [videoFile] },
-    });
-    fireEvent.change(thumbInput, {
-      target: { files: [thumbFile] },
-    });
+    fireEvent.change(videoInput, { target: { files: [videoFile] } });
+    fireEvent.change(thumbInput, { target: { files: [thumbFile] } });
 
-    fireEvent.submit(
-      screen.getByRole('button', { name: /Subir/i })
-    );
+    fireEvent.submit(screen.getByRole('button', { name: /Subir/i }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -121,21 +82,10 @@ describe('UploadModal', () => {
       status: 500,
     });
 
-    render(
-      <UploadModal
-        open={true}
-        onClose={onClose}
-        token={null}
-        username="tester"
-      />
-    );
+    render(<UploadModal open={true} onClose={onClose} token={null} username="tester" />);
 
-    const videoFile = new File(['dummy'], 'video.mp4', {
-      type: 'video/mp4',
-    });
-    const thumbFile = new File(['dummy'], 'thumb.webp', {
-      type: 'image/webp',
-    });
+    const videoFile = new File(['dummy'], 'video.mp4', { type: 'video/mp4' });
+    const thumbFile = new File(['dummy'], 'thumb.webp', { type: 'image/webp' });
 
     fireEvent.change(screen.getByLabelText(/Título/i), {
       target: { value: 'Mi vídeo' },
@@ -147,14 +97,10 @@ describe('UploadModal', () => {
       target: { files: [thumbFile] },
     });
 
-    fireEvent.submit(
-      screen.getByRole('button', { name: /Subir/i })
-    );
+    fireEvent.submit(screen.getByRole('button', { name: /Subir/i }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Error al subir \(500\)/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Error al subir \(500\)/)).toBeInTheDocument();
     });
 
     expect(onClose).not.toHaveBeenCalled();

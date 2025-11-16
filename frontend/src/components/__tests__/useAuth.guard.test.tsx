@@ -11,9 +11,7 @@ describe('useAuth guard', () => {
   it('lanza error si se usa fuera de <AuthProvider>', () => {
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(() => render(<BrokenConsumer />)).toThrow(
-      /useAuth must be used inside <AuthProvider>/,
-    );
+    expect(() => render(<BrokenConsumer />)).toThrow(/useAuth must be used inside <AuthProvider>/);
 
     spy.mockRestore();
   });

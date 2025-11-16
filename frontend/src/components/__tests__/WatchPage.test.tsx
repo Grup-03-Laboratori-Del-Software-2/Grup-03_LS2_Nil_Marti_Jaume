@@ -3,15 +3,11 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import WatchPage from '../../pages/WatchPage';
 
-// Ahora simulamos que HAY usuario logueado para que salga el botón "Eliminar vídeo"
 jest.mock('../../auth/useAuth', () => ({
   useAuth: () => ({ user: { name: 'TestUser' }, token: 'fake-token' }),
 }));
 
-// Sidebar simplificado
-jest.mock('../../shared/WatchSidebar', () => () => (
-  <aside data-testid="watch-sidebar" />
-));
+jest.mock('../../shared/WatchSidebar', () => () => <aside data-testid="watch-sidebar" />);
 
 afterEach(() => {
   (global.fetch as jest.Mock | undefined)?.mockReset?.();
@@ -30,7 +26,6 @@ type ApiVideoDetail = {
   comments: { id: number; username: string; text: string; dateOfPublish: string }[];
 };
 
-// Datos de detalle comunes
 const mockDetail: ApiVideoDetail = {
   id: 123,
   videoURL: '/media/123.mp4',
@@ -59,17 +54,12 @@ describe('WatchPage', () => {
       </MemoryRouter>
     );
 
-    // primero loading
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
 
-    // luego título
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Vídeo desde API' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Vídeo desde API' })).toBeInTheDocument();
     });
 
-    // descripción
     expect(screen.getByText('Descripción del vídeo')).toBeInTheDocument();
   });
 
@@ -93,8 +83,6 @@ describe('WatchPage', () => {
   });
 
   it('permite pulsar "Eliminar vídeo" y realiza petición DELETE', async () => {
-    // 1ª llamada: GET detalle
-    // 2ª llamada: DELETE
     (global as any).fetch = jest
       .fn()
       .mockResolvedValueOnce({
@@ -117,14 +105,12 @@ describe('WatchPage', () => {
       </MemoryRouter>
     );
 
-    // Esperamos a que se renderice el botón "Eliminar vídeo"
     await waitFor(() => {
       expect(screen.getByText('Eliminar vídeo')).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByText('Eliminar vídeo'));
 
-    // Esperamos a que se haya hecho la llamada DELETE
     await waitFor(() => {
       expect((global.fetch as jest.Mock).mock.calls.length).toBe(2);
     });
@@ -135,9 +121,7 @@ describe('WatchPage', () => {
 
     expect(deleteUrl).toBe('/api/videos/123');
     expect(deleteOptions.method).toBe('DELETE');
-    expect(
-      (deleteOptions.headers as Record<string, string>).Authorization
-    ).toBe('Bearer fake-token');
+    expect((deleteOptions.headers as Record<string, string>).Authorization).toBe('Bearer fake-token');
 
     confirmSpy.mockRestore();
   });

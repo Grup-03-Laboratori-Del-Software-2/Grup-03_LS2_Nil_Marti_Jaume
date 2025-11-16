@@ -1,46 +1,42 @@
-import React from 'react';
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AuthModal from '../AuthModal';
 
-const signInMock = jest.fn();
-const signUpMock = jest.fn();
+const signIn = jest.fn();
 
 jest.mock('../../auth/useAuth', () => ({
   useAuth: () => ({
-    signIn: signInMock,
-    signUp: signUpMock,
+    signIn,
+    signUp: jest.fn(),
     loading: false,
   }),
 }));
 
-describe('AuthModal login error flow', () => {
-  beforeEach(() => {
-    signInMock.mockReset();
-    signUpMock.mockReset();
-  });
+beforeEach(() => {
+  signIn.mockReset();
+});
 
-  it('muestra mensaje de error cuando signIn rechaza y no llama a onClose', async () => {
+describe('AuthModal login error', () => {
+  it('muestra el mensaje de error cuando signIn rechaza', async () => {
     const onClose = jest.fn();
-    signInMock.mockRejectedValueOnce(new Error('Credenciales incorrectas'));
+    signIn.mockRejectedValueOnce(new Error('Credenciales inválidas'));
 
     render(<AuthModal open={true} onClose={onClose} />);
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const passInput = screen.getByLabelText(/contraseña/i);
-    const submitButton = screen.getByRole('button', { name: /entrar/i });
-
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passInput, { target: { value: 'secret' } });
-    fireEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(signInMock).toHaveBeenCalledWith('user@example.com', 'secret');
+    fireEvent.change(screen.getByLabelText(/Email/i), {
+      target: { value: 'bad@test.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/Contraseña/i), {
+      target: { value: 'wrong' },
     });
 
-    // No debe cerrar el modal en error
-    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.submit(screen.getByRole('button', { name: /Entrar/i }));
 
-    // Muestra el mensaje de error que viene del Error
-    expect(await screen.findByText(/credenciales incorrectas/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(signIn).toHaveBeenCalled();
+      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
+    });
+
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

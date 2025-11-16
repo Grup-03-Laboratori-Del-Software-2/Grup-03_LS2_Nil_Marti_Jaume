@@ -25,7 +25,6 @@ describe('AuthModal', () => {
 
     render(<AuthModal open={true} onClose={onClose} />);
 
-    // estamos en pestaña login por defecto
     const emailInput = screen.getByLabelText(/Email/i);
     const passInput = screen.getByLabelText(/Contraseña/i);
 
@@ -57,9 +56,7 @@ describe('AuthModal', () => {
 
     await waitFor(() => {
       expect(signIn).toHaveBeenCalled();
-      expect(
-        screen.getByText('Credenciales inválidas')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
       expect(onClose).not.toHaveBeenCalled();
     });
   });
@@ -70,10 +67,8 @@ describe('AuthModal', () => {
 
     render(<AuthModal open={true} onClose={onClose} />);
 
-    // Cambiamos a pestaña register
     fireEvent.click(screen.getByRole('tab', { name: /Crear cuenta/i }));
 
-    // Rellenamos campos
     fireEvent.change(screen.getByLabelText(/^Nombre$/i), {
       target: { value: 'Nombre' },
     });
@@ -90,18 +85,10 @@ describe('AuthModal', () => {
       target: { value: '2000-01-02' },
     });
 
-    fireEvent.submit(
-      screen.getByRole('button', { name: /Crear cuenta/i })
-    );
+    fireEvent.submit(screen.getByRole('button', { name: /Crear cuenta/i }));
 
     await waitFor(() => {
-      expect(signUp).toHaveBeenCalledWith(
-        'Nombre',
-        'Apellido',
-        'nuevo@test.com',
-        '123456',
-        '2000-01-02T00:00:00' // lo que construyes en handleRegister
-      );
+      expect(signUp).toHaveBeenCalledWith('Nombre', 'Apellido', 'nuevo@test.com', '123456', '2000-01-02T00:00:00');
       expect(onClose).toHaveBeenCalled();
     });
   });
@@ -117,9 +104,7 @@ describe('AuthModal', () => {
   });
 
   it('no renderiza nada cuando open = false', () => {
-    const { container } = render(
-      <AuthModal open={false} onClose={() => {}} />
-    );
+    const { container } = render(<AuthModal open={false} onClose={() => {}} />);
     expect(container.firstChild).toBeNull();
   });
 });
