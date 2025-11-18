@@ -8,28 +8,35 @@ import com.tecnocampus.LS2.protube_back.application.mapper.video.VideoMapper;
 import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.domain.video.VideoMetadata;
 import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Service
 public class VideoService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VideoService.class);
 
     private final VideoRepository videoRepository;
 
     @Value("${pro-tube.store-dir:}")
     private String configuredStoreDir;
 
-    public VideoService(VideoRepository videoRepository){
+    public VideoService(VideoRepository videoRepository) {
         this.videoRepository = videoRepository;
     }
 
@@ -41,12 +48,59 @@ public class VideoService {
         return videoRepository.findById(videoId).map(VideoMapper::videoToVideoDetailDTO);
     }
 
+    @Transactional
+    public VideoDetailDTO uploadVideo(MultipartFile videoFile,
+                                      MultipartFile thumbnailFile,
+                                      String name,
+                                      String username,
+                                      String description,
+                                      long duration) throws IOException {
+
+        Path storePath = Paths.get(configuredStoreDir);
+        Files.createDirectories(storePath);
+
+        String baseName = UUID.randomUUID().toString();
+
+        Path targetVideo = storePath.resolve(baseName + ".mp4");
+        Path targetThumb = storePath.resolve(baseName + ".webp");
+
+        Files.copy(videoFile.getInputStream(), targetVideo, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(thumbnailFile.getInputStream(), targetThumb, StandardCopyOption.REPLACE_EXISTING);
+
+        Video video = new Video(
+                targetVideo.toString(),
+                name,
+                username,
+                description,
+                LocalDateTime.now(),
+                targetThumb.toString(),
+                duration
+        );
+
+        Video saved = videoRepository.save(video);
+
+        return VideoMapper.videoToVideoDetailDTO(saved);
+    }
+
+    @Transactional
+    public boolean deleteVideo(Long videoId) {
+        Optional<Video> opt = videoRepository.findById(videoId);
+        if (opt.isEmpty()) return false;
+
+        Video v = opt.get();
+
+        try { Files.deleteIfExists(Paths.get(v.getVideoURL())); } catch (Exception ignored) {}
+        try { Files.deleteIfExists(Paths.get(v.getThumbnailURL())); } catch (Exception ignored) {}
+
+        videoRepository.delete(v);
+        return true;
+    }
+
     public List<String> loadVideosFromDisk(String storeDir) {
         List<String> loadedVideos = new ArrayList<>();
         Path storePath = Paths.get(storeDir);
 
-        // Mapper tolerante (ignora campos desconocidos)
-        ObjectMapper objectMapper = new ObjectMapper()
+        ObjectMapper mapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         try (Stream<Path> paths = Files.list(storePath)) {
@@ -59,60 +113,31 @@ public class VideoService {
                 try {
                     String baseName = jsonFile.getFileName().toString().replace(".json", "");
                     Path videoPath = storePath.resolve(baseName + ".mp4");
-                    Path thumbnailPath = storePath.resolve(baseName + ".webp");
+                    Path thumbPath = storePath.resolve(baseName + ".webp");
 
-                    // Si falta vídeo o thumbnail, saltamos ese entry
-                    if (!Files.exists(videoPath) || !Files.exists(thumbnailPath)) {
-                        System.out.println("⏭️ Faltan archivos para " + baseName + " (mp4/webp). Saltando.");
-                        continue;
-                    }
+                    if (!Files.exists(videoPath) || !Files.exists(thumbPath)) continue;
 
-                    VideoMetadata metadata = objectMapper.readValue(jsonFile.toFile(), VideoMetadata.class);
+                    VideoMetadata metadata = mapper.readValue(jsonFile.toFile(), VideoMetadata.class);
 
                     Video video = new Video(
-                            videoPath.toString(),                    // ruta absoluta en disco
+                            videoPath.toString(),
                             metadata.title(),
                             metadata.user(),
                             metadata.meta() != null ? metadata.meta().description() : "",
                             Instant.ofEpochSecond(metadata.timestamp())
                                     .atZone(ZoneId.systemDefault())
                                     .toLocalDateTime(),
-                            thumbnailPath.toString(),
-                            Math.round(metadata.duration())          // ← long correcto
+                            thumbPath.toString(),
+                            Math.round(metadata.duration())
                     );
 
                     videoRepository.save(video);
-                    System.out.println("✔️ Guardado vídeo: " + video.getName() + " | ID: " + video.getId());
                     loadedVideos.add(video.getName());
 
-                } catch (Exception perFileEx) {
-                    // No paramos el import por un json problemático: lo reportamos y seguimos
-                    System.err.println("❌ Error procesando " + jsonFile.getFileName() + ": " + perFileEx.getMessage());
-                }
+                } catch (Exception ignored) {}
             }
+        } catch (Exception ignored) {}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("📦 Vídeos en repositorio: " + videoRepository.count());
         return loadedVideos;
     }
-
-    /*
-    @EventListener(ApplicationReadyEvent.class)
-    @Transactional
-    public void preloadStoreOnStartup() {
-        String storeDir = configuredStoreDir;
-        if (storeDir == null || storeDir.isBlank()) {
-            System.out.println("[WARN] pro-tube.store-dir no definido. Saltando precarga.");
-            return;
-        }
-        if (videoRepository.count() > 0) {
-            System.out.println("[INFO] Vídeos ya cargados. Saltando precarga.");
-            return;
-        }
-        System.out.println("[INFO] Precargando vídeos desde disco: " + storeDir);
-        loadVideosFromDisk(storeDir);
-    }
-    */
 }

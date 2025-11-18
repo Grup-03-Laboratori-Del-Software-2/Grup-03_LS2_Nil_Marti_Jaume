@@ -9,6 +9,7 @@ import CarouselRow from '../components/CarouselRow';
 import AuthModal from '../components/AuthModal';
 import { useAuth } from '../auth/useAuth';
 import VideoDetail from '../components/VideoDetail';
+import UploadModal from '../components/UploadModal';
 import './home.css';
 
 export default function Home() {
@@ -50,19 +51,18 @@ export default function Home() {
       </main>
       <footer className="pt-footer">© {new Date().getFullYear()} ProTube</footer>
 
-      {/* Modal detalle */}
       {selected && <VideoDetail video={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
 
-/* --- Sidebar --- */
 function SideNav() {
   type TabId = 'home' | 'trending' | 'recently-added' | 'recommended' | 'all' | 'contact';
 
   const [active, setActive] = useState<TabId>('home');
   const [authOpen, setAuthOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const { user, signOut, token } = useAuth();
 
   useEffect(() => {
     const raw = (window.location.hash || '#home').slice(1) as TabId;
@@ -95,6 +95,8 @@ function SideNav() {
     </a>
   );
 
+  const username = user?.name ?? user?.email ?? '';
+
   return (
     <>
       <aside className="pt-sidebar" aria-label="Navegación principal">
@@ -120,9 +122,18 @@ function SideNav() {
         </nav>
 
         <div className="pt-side-bottom">
-          <a href="#" title="Subir" aria-label="Subir" className="pt-side-link">
+          <button
+            type="button"
+            title="Subir"
+            aria-label="Subir"
+            className="pt-side-link"
+            onClick={() => {
+              if (user) setUploadOpen(true);
+              else setAuthOpen(true);
+            }}
+          >
             <FiUpload size={22} />
-          </a>
+          </button>
 
           {user ? (
             <button
@@ -147,11 +158,21 @@ function SideNav() {
       </aside>
 
       <AuthModal open={authOpen && !user} onClose={() => setAuthOpen(false)} />
+
+      <UploadModal
+        open={uploadOpen && !!user}
+        onClose={() => setUploadOpen(false)}
+        token={token}
+        username={username}
+        onUploaded={() => {
+          setUploadOpen(false);
+          window.location.reload();
+        }}
+      />
     </>
   );
 }
 
-/* --- Secciones --- */
 function AllVideosSection({ videos, onSelect }: { videos: Video[]; onSelect: (v: Video) => void }) {
   return (
     <section id="all" style={{ marginTop: '2.5rem' }}>
@@ -267,7 +288,6 @@ function ContactSection() {
   );
 }
 
-/* --- Hero + Skeletons + helpers --- */
 function HeroBanner({ video }: { video: Video | null }) {
   const navigate = useNavigate();
 
