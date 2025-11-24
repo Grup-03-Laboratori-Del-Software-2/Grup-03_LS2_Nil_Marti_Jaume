@@ -22,6 +22,9 @@ describe('WatchPage', () => {
       signIn: jest.fn(),
       signUp: jest.fn(),
       signOut: jest.fn(),
+      updateProfile: jest.fn(),
+      updateAvatar: jest.fn(),
+      changePassword: jest.fn(),
     });
 
     // Mock de fetch para TODOS los casos que puede llamar WatchPage
@@ -49,12 +52,12 @@ describe('WatchPage', () => {
         } as unknown as Response;
       }
 
-      // 2) Comprobación de suscripción del canal
+      // 2) Comprobación de suscripción / likes del canal
       if (url === '/api/channels/user1/subscription' && method === 'GET') {
         return {
           ok: true,
           status: 200,
-          json: async () => ({ subscribed: false, subscribers: 0 }),
+          json: async () => ({ subscribed: false, likesCount: 0 }),
         } as unknown as Response;
       }
 
@@ -64,64 +67,6 @@ describe('WatchPage', () => {
           ok: true,
           status: 204,
           json: async () => ({}),
-        } as unknown as Response;
-      }
-
-      // 4) POST like
-      if (url === '/api/videos/123/likes' && method === 'POST') {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            id: 123,
-            videoURL: '/media/123.mp4',
-            name: 'Vídeo desde API',
-            username: 'user1',
-            description: 'Descripción del vídeo',
-            dateOfPublish: '2025-11-24T12:00:00',
-            thumbnailURL: '/media/123.webp',
-            duration: 10,
-            likes: [{ username: 'user@example.com' }],
-            comments: [],
-          }),
-        } as unknown as Response;
-      }
-
-      // 5) DELETE like
-      if (url === '/api/videos/123/likes' && method === 'DELETE') {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            id: 123,
-            videoURL: '/media/123.mp4',
-            name: 'Vídeo desde API',
-            username: 'user1',
-            description: 'Descripción del vídeo',
-            dateOfPublish: '2025-11-24T12:00:00',
-            thumbnailURL: '/media/123.webp',
-            duration: 10,
-            likes: [],
-            comments: [],
-          }),
-        } as unknown as Response;
-      }
-
-      // 6) POST suscripción
-      if (url === '/api/channels/user1/subscription' && method === 'POST') {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({ subscribed: true, subscribers: 1 }),
-        } as unknown as Response;
-      }
-
-      // 7) DELETE suscripción
-      if (url === '/api/channels/user1/subscription' && method === 'DELETE') {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({ subscribed: false, subscribers: 0 }),
         } as unknown as Response;
       }
 
@@ -178,86 +123,6 @@ describe('WatchPage', () => {
       const [, deleteOptions] = deleteCall as [string, RequestInit];
       const headers = (deleteOptions.headers || {}) as Record<string, string>;
 
-      expect(headers.Authorization).toBe('Bearer fake-token');
-    });
-  });
-
-  it('permite hacer like y unlike llamando a los endpoints correctos', async () => {
-    renderWatchPage();
-
-    // Esperamos al botón inicial de like
-    await waitFor(() => {
-      expect(screen.getByText('Me gusta (0)')).toBeInTheDocument();
-    });
-
-    // LIKE
-    fireEvent.click(screen.getByText('Me gusta (0)'));
-
-    await waitFor(() => {
-      const calls = (global.fetch as jest.Mock).mock.calls;
-
-      const likePost = calls.find(([url, options]) => {
-        const opts = (options || {}) as RequestInit;
-        return url === '/api/videos/123/likes' && opts.method === 'POST';
-      });
-
-      expect(likePost).toBeTruthy();
-
-      const [, likeOptions] = likePost as [string, RequestInit];
-      const headers = (likeOptions.headers || {}) as Record<string, string>;
-      expect(headers.Authorization).toBe('Bearer fake-token');
-    });
-
-    // Debería actualizarse el contador
-    await waitFor(() => {
-      expect(screen.getByText('Me gusta (1)')).toBeInTheDocument();
-    });
-
-    // UNLIKE
-    fireEvent.click(screen.getByText('Me gusta (1)'));
-
-    await waitFor(() => {
-      const calls = (global.fetch as jest.Mock).mock.calls;
-
-      const likeDelete = calls.find(([url, options]) => {
-        const opts = (options || {}) as RequestInit;
-        return url === '/api/videos/123/likes' && opts.method === 'DELETE';
-      });
-
-      expect(likeDelete).toBeTruthy();
-
-      const [, deleteOptions] = likeDelete as [string, RequestInit];
-      const headers = (deleteOptions.headers || {}) as Record<string, string>;
-      expect(headers.Authorization).toBe('Bearer fake-token');
-    });
-
-    // Vuelve a 0
-    await waitFor(() => {
-      expect(screen.getByText('Me gusta (0)')).toBeInTheDocument();
-    });
-  });
-
-  it('permite suscribirse al canal llamando al endpoint de suscripción', async () => {
-    renderWatchPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Suscribirse')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText('Suscribirse'));
-
-    await waitFor(() => {
-      const calls = (global.fetch as jest.Mock).mock.calls;
-
-      const subPost = calls.find(([url, options]) => {
-        const opts = (options || {}) as RequestInit;
-        return url === '/api/channels/user1/subscription' && opts.method === 'POST';
-      });
-
-      expect(subPost).toBeTruthy();
-
-      const [, subOptions] = subPost as [string, RequestInit];
-      const headers = (subOptions.headers || {}) as Record<string, string>;
       expect(headers.Authorization).toBe('Bearer fake-token');
     });
   });

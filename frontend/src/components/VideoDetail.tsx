@@ -72,7 +72,22 @@ export default function VideoDetail({ video, onClose }: { video: Video; onClose:
               <ul className="pt-comments-list">
                 {comments.map((c) => (
                   <li key={c.id} className="pt-comment">
-                    <div className="pt-comment-avatar">{c.author[0]?.toUpperCase()}</div>
+                    <div className="pt-comment-avatar">
+                      {c.avatarURL ? (
+                        <img
+                          src={c.avatarURL}
+                          alt={c.author}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '999px',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      ) : (
+                        c.author[0]?.toUpperCase()
+                      )}
+                    </div>
                     <div className="pt-comment-body">
                       <div className="pt-comment-head">
                         <strong>{c.author}</strong>

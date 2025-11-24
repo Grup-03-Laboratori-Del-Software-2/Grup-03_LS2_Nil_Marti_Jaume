@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiUser } from 'react-icons/fi';
 
 type Props = {
   onGoto: (k: 'player' | 'title' | 'comments') => void;
@@ -91,15 +91,26 @@ export default function WatchSidebar({ onGoto, hasUser, onOpenAuth, onSignOut }:
 
       <div className="pt-side-bottom">
         {hasUser ? (
-          <button
-            type="button"
-            title="Cerrar sesión"
-            aria-label="Cerrar sesión"
-            className="pt-side-link"
-            onClick={onSignOut}
-          >
-            <FiLogOut size={22} />
-          </button>
+          <>
+            <button
+              type="button"
+              title="Mi perfil"
+              aria-label="Mi perfil"
+              className="pt-side-link"
+              onClick={() => navigate('/profile')}
+            >
+              <FiUser size={22} />
+            </button>
+            <button
+              type="button"
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+              className="pt-side-link"
+              onClick={onSignOut}
+            >
+              <FiLogOut size={22} />
+            </button>
+          </>
         ) : (
           <button
             type="button"

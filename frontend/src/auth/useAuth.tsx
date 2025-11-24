@@ -8,6 +8,7 @@ export type AuthUser = {
   surname?: string;
   dateOfBirth?: string;
   dateOfRegistration?: string;
+  avatarURL?: string;
 };
 
 type Ctx = {
@@ -17,6 +18,9 @@ type Ctx = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, surname: string, email: string, password: string, dateOfBirthISO: string) => Promise<void>;
   signOut: () => void;
+  updateProfile: (data: { name: string; surname: string; email: string; dateOfBirth?: string | null }) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 };
 
 const AuthCtx = createContext<Ctx | undefined>(undefined);
@@ -76,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const surname = typeof m.surname === 'string' ? m.surname : undefined;
     const dateOfBirth = typeof m.dateOfBirth === 'string' ? m.dateOfBirth : undefined;
     const dateOfRegistration = typeof m.dateOfRegistration === 'string' ? m.dateOfRegistration : undefined;
+    const avatarURL = typeof m.avatarURL === 'string' ? m.avatarURL : undefined;
 
     return {
       email,
@@ -83,12 +88,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       surname,
       dateOfBirth,
       dateOfRegistration,
+      avatarURL,
     };
   }
 
   async function fetchMe(tok: string) {
     const res = await fetch(`${API}/user/me`, {
       headers: { Authorization: `Bearer ${tok}` },
+      credentials: 'include',
     });
     if (!res.ok) throw new Error(await res.text());
     const me = await res.json();
@@ -160,9 +167,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }).catch(() => {});
   }, [API]);
 
+  const updateProfile = useCallback(
+    async (data: { name: string; surname: string; email: string; dateOfBirth?: string | null }) => {
+      if (!token) throw new Error('Missing auth token');
+      setLoading(true);
+      try {
+        const res = await fetch(`${API}/user/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: data.name,
+            surname: data.surname,
+            email: data.email,
+            dateOfBirth: data.dateOfBirth ?? null,
+          }),
+        });
+        if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+        const me = await res.json();
+        const u = mapUser(me);
+        if (u) setUser(u);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [API, token]
+  );
+
+  const updateAvatar = useCallback(
+    async (file: File) => {
+      if (!token) throw new Error('Missing auth token');
+      const form = new FormData();
+      form.append('avatar', file);
+
+      setLoading(true);
+      try {
+        const res = await fetch(`${API}/user/me/avatar`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: form,
+        });
+        if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+        const me = await res.json();
+        const u = mapUser(me);
+        if (u) setUser(u);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [API, token]
+  );
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      if (!token) throw new Error('Missing auth token');
+      setLoading(true);
+      try {
+        const res = await fetch(`${API}/user/change-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [API, token]
+  );
+
   const value = useMemo<Ctx>(
-    () => ({ user, token, loading, signIn, signUp, signOut }),
-    [user, token, loading, signIn, signUp, signOut]
+    () => ({
+      user,
+      token,
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      updateProfile,
+      updateAvatar,
+      changePassword,
+    }),
+    [user, token, loading, signIn, signUp, signOut, updateProfile, updateAvatar, changePassword]
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

@@ -1,0 +1,130 @@
+.pt-profile-page {
+  min-height: 100vh;
+  background: #020617;
+  color: #e5e7eb;
+  padding: 1.5rem;
+}
+
+.pt-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pt-profile-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.pt-profile-back {
+  background: transparent;
+  border: none;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.pt-profile-main {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pt-profile-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.pt-profile-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.pt-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pt-field-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.pt-field-row label {
+  flex: 1;
+}
+
+.pt-profile-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.pt-profile-form input {
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.pt-profile-primary,
+.pt-profile-secondary {
+  border-radius: 6px;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pt-profile-primary {
+  background: #22c55e;
+  color: #020617;
+  align-self: flex-start;
+}
+
+.pt-profile-secondary {
+  background: #0ea5e9;
+  color: #020617;
+}
+
+.pt-profile-error {
+  color: #f97373;
+  font-size: 0.85rem;
+}
+
+.pt-profile-success {
+  color: #4ade80;
+  font-size: 0.85rem;
+}
+
+.pt-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pt-avatar-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #020617;
+}
+
+.pt-avatar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
