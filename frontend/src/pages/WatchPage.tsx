@@ -192,12 +192,7 @@ export default function WatchPage() {
   if (!id) {
     return (
       <div className="pt-watch-layout">
-        <WatchSidebar
-          onGoto={handleGoto}
-          hasUser={!!user}
-          onOpenAuth={() => setAuthOpen(true)}
-          onSignOut={signOut}
-        />
+        <WatchSidebar onGoto={handleGoto} hasUser={!!user} onOpenAuth={() => setAuthOpen(true)} onSignOut={signOut} />
         <main className="pt-watch-main">
           <p>Vídeo no encontrado.</p>
           <button onClick={() => navigate('/')}>Volver al inicio</button>
@@ -209,12 +204,7 @@ export default function WatchPage() {
 
   return (
     <div className="pt-watch-layout">
-      <WatchSidebar
-        onGoto={handleGoto}
-        hasUser={!!user}
-        onOpenAuth={() => setAuthOpen(true)}
-        onSignOut={signOut}
-      />
+      <WatchSidebar onGoto={handleGoto} hasUser={!!user} onOpenAuth={() => setAuthOpen(true)} onSignOut={signOut} />
 
       <main className="pt-watch-main">
         <section id="watch-player" className="pt-watch-section">

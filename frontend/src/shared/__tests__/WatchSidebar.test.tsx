@@ -11,12 +11,7 @@ describe('WatchSidebar', () => {
 
     render(
       <MemoryRouter>
-        <WatchSidebar
-          onGoto={handleGoto}
-          hasUser={false}
-          onOpenAuth={handleOpenAuth}
-          onSignOut={handleSignOut}
-        />
+        <WatchSidebar onGoto={handleGoto} hasUser={false} onOpenAuth={handleOpenAuth} onSignOut={handleSignOut} />
       </MemoryRouter>
     );
 
@@ -34,12 +29,7 @@ describe('WatchSidebar', () => {
 
     render(
       <MemoryRouter>
-        <WatchSidebar
-          onGoto={handleGoto}
-          hasUser={true}
-          onOpenAuth={handleOpenAuth}
-          onSignOut={handleSignOut}
-        />
+        <WatchSidebar onGoto={handleGoto} hasUser={true} onOpenAuth={handleOpenAuth} onSignOut={handleSignOut} />
       </MemoryRouter>
     );
 

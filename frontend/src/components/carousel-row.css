@@ -1,12 +1,62 @@
-.pt-row{ position:relative; margin-top:1.25rem; }
-.pt-row-header{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:.25rem; padding-right:2.5rem; }
-.pt-row-header h2{ color:#fff; font-size:1.1rem; font-weight:700; }
-.pt-row-header small{ color:rgba(255,255,255,.6); }
-.pt-row-wrap{ position:relative; }
-.pt-row-arrow{ position:absolute; top:50%; transform:translateY(-50%); z-index:2; display:none; place-items:center; height:40px; width:40px; border-radius:999px; border:0; background:rgba(0,0,0,.6); color:#fff; cursor:pointer; opacity:0; transition:.2s; }
-.pt-row-wrap:hover .pt-row-arrow{ display:grid; opacity:1; }
-.pt-row-arrow.left{ left:0; }
-.pt-row-arrow.right{ right:0; }
-.pt-row-scroller{ overflow-x:auto; scroll-behavior:smooth; white-space:nowrap; padding-right:.5rem; }
-.pt-row-scroller::-webkit-scrollbar{ display:none; }
-.pt-row-scroller{ -ms-overflow-style:none; scrollbar-width:none; }
+.pt-row {
+  position: relative;
+  margin-top: 1.25rem;
+}
+.pt-row-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  padding-right: 2.5rem;
+}
+.pt-row-header h2 {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.pt-row-header small {
+  color: rgba(255, 255, 255, 0.6);
+}
+.pt-row-wrap {
+  position: relative;
+}
+.pt-row-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: none;
+  place-items: center;
+  height: 40px;
+  width: 40px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.2s;
+}
+.pt-row-wrap:hover .pt-row-arrow {
+  display: grid;
+  opacity: 1;
+}
+.pt-row-arrow.left {
+  left: 0;
+}
+.pt-row-arrow.right {
+  right: 0;
+}
+.pt-row-scroller {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  padding-right: 0.5rem;
+}
+.pt-row-scroller::-webkit-scrollbar {
+  display: none;
+}
+.pt-row-scroller {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
