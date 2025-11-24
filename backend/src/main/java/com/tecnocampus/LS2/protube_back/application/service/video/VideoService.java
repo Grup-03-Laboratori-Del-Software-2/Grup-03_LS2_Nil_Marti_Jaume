@@ -6,8 +6,10 @@ import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDTO;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
 import com.tecnocampus.LS2.protube_back.application.mapper.video.VideoMapper;
 import com.tecnocampus.LS2.protube_back.domain.video.Comment;
+import com.tecnocampus.LS2.protube_back.domain.video.Like;
 import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.domain.video.VideoMetadata;
+import com.tecnocampus.LS2.protube_back.exceptions.NotFoundException;
 import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,5 +166,35 @@ public class VideoService {
             Video saved = videoRepository.save(video);
             return VideoMapper.videoToVideoDetailDTO(saved);
         });
+    }
+
+    @Transactional
+    public VideoDetailDTO addLike(Long videoId, String username) throws NotFoundException {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("Video not found"));
+
+        boolean exists = video.getLikes().stream()
+                .anyMatch(l -> username.equalsIgnoreCase(l.getUsername()));
+
+        if (!exists) {
+            Like like = new Like(username, video);
+            video.getLikes().add(like);
+            video = videoRepository.save(video);
+        }
+
+        return VideoMapper.videoToVideoDetailDTO(video);
+    }
+
+    @Transactional
+    public VideoDetailDTO removeLike(Long videoId, String username) throws NotFoundException {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("Video not found"));
+
+        boolean removed = video.getLikes().removeIf(l -> username.equalsIgnoreCase(l.getUsername()));
+        if (removed) {
+            video = videoRepository.save(video);
+        }
+
+        return VideoMapper.videoToVideoDetailDTO(video);
     }
 }
