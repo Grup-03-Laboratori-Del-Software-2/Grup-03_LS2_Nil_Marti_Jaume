@@ -1,70 +1,73 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getEnv } from './Env';
+import { useEffect, useState } from 'react';
 
 export type Comment = {
-  id: string;
-  videoId: string;
+  id: number;
   author: string;
   text: string;
   createdAt: string; // ISO
+  avatarURL?: string | null;
 };
 
-export function useComments(videoId: string) {
-  const env = getEnv();
-  const useMocks = useMemo(() => {
-    const raw = String((env.__vite__ as any)?.VITE_USE_MOCK_COMMENTS ?? 'true');
-    return raw.toLowerCase() === 'true';
-  }, [env]);
+type ApiComment = {
+  id: number;
+  username: string;
+  text: string;
+  dateOfPublish: string;
+  avatarURL?: string | null;
+};
 
+type ApiVideoDetail = {
+  id: number;
+  comments?: ApiComment[];
+};
+
+export function useComments(videoId: number | string | undefined) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setErr] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (videoId == null) return;
     let canceled = false;
+
     async function run() {
       setLoading(true);
-      setErr(null);
+      setError(null);
       try {
-        if (useMocks) {
-          const mocks = makeMockComments(videoId);
-          if (!canceled) setComments(mocks);
-        } else {
-          const res = await fetch(`${env.API_BASE_URL}/videos/${videoId}/comments`, {
-            credentials: 'include',
-          });
-          if (!res.ok) throw new Error(await res.text());
-          const data = (await res.json()) as Comment[];
-          if (!canceled) setComments(data);
+        const res = await fetch(`/api/videos/${videoId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = (await res.json()) as ApiVideoDetail | null;
+        if (!data || canceled) return;
+
+        const mapped: Comment[] = (data.comments ?? []).map((c) => ({
+          id: c.id,
+          author: c.username,
+          text: c.text,
+          createdAt: c.dateOfPublish,
+          avatarURL: c.avatarURL ?? null,
+        }));
+
+        if (!canceled) {
+          setComments(mapped);
         }
-      } catch (e: any) {
-        if (!canceled) setErr(e?.message || 'Error');
+      } catch (e: unknown) {
+        if (!canceled) {
+          const msg = e instanceof Error ? e.message : 'Error al cargar comentarios';
+          setError(msg);
+        }
       } finally {
-        if (!canceled) setLoading(false);
+        if (!canceled) {
+          setLoading(false);
+        }
       }
     }
+
     run();
     return () => {
       canceled = true;
     };
-  }, [videoId, env, useMocks]);
+  }, [videoId]);
 
-  return { comments, loading, error: error };
-}
-
-function makeMockComments(videoId: string): Comment[] {
-  const base = [
-    'Brutal edición, me encantó el ritmo 🔥',
-    'Dato interesante en el minuto 3:24.',
-    '¿Alguien tiene el enlace a los recursos?',
-    'Buen contenido, directo y claro.',
-    'Like si también viniste por la miniatura 😅',
-  ];
-  return base.map((text, i) => ({
-    id: `${videoId}-${i}`,
-    videoId,
-    author: ['Ana', 'Nil', 'Jaume', 'Genís', 'Martí'][i % 5],
-    text,
-    createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-  }));
+  return { comments, loading, error };
 }

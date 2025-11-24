@@ -63,6 +63,7 @@ function SideNav() {
   const [authOpen, setAuthOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const { user, signOut, token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const raw = (window.location.hash || '#home').slice(1) as TabId;
@@ -136,14 +137,25 @@ function SideNav() {
           </button>
 
           {user ? (
-            <button
-              title={`Cerrar sesión (${user.name})`}
-              aria-label="Cerrar sesión"
-              className="pt-side-link"
-              onClick={signOut}
-            >
-              <FiLogOut size={22} />
-            </button>
+            <>
+              <button
+                type="button"
+                title="Mi perfil"
+                aria-label="Mi perfil"
+                className="pt-side-link"
+                onClick={() => navigate('/profile')}
+              >
+                <FiUser size={22} />
+              </button>
+              <button
+                title={`Cerrar sesión (${user.name})`}
+                aria-label="Cerrar sesión"
+                className="pt-side-link"
+                onClick={signOut}
+              >
+                <FiLogOut size={22} />
+              </button>
+            </>
           ) : (
             <button
               title="Iniciar sesión / Registrarse"

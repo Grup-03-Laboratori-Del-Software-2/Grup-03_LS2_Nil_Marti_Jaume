@@ -16,7 +16,13 @@ type ApiVideoDetail = {
   thumbnailURL: string;
   duration: number;
   likes: { username: string }[];
-  comments: { id: number; username: string; text: string; dateOfPublish: string }[];
+  comments: {
+    id: number;
+    username: string;
+    text: string;
+    dateOfPublish: string;
+    avatarURL?: string | null;
+  }[];
 };
 
 type WatchLocationState = {
@@ -446,8 +452,26 @@ export default function WatchPage() {
           <div className="pt-comments">
             {(detail?.comments ?? []).map((c) => (
               <article key={c.id} className="pt-comment">
-                <header>{c.username}</header>
-                <p>{c.text}</p>
+                <div className="pt-comment-avatar">
+                  {c.avatarURL ? (
+                    <img
+                      src={c.avatarURL}
+                      alt={c.username}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '999px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    c.username[0]?.toUpperCase()
+                  )}
+                </div>
+                <div className="pt-comment-body">
+                  <header>{c.username}</header>
+                  <p>{c.text}</p>
+                </div>
               </article>
             ))}
 

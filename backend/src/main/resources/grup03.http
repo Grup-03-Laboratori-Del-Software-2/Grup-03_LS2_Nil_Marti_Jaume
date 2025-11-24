@@ -40,3 +40,4 @@ GET http://localhost:8080/api/videos
 
 ### GET VIDEO DETAILED
 GET http://localhost:8080/api/videos/1
+
