@@ -2,28 +2,27 @@
   --sidebar-w: 80px;
   --page-pad-x: 32px;
   --page-pad-y: 24px;
-  --max-content: 1100px; 
+  --max-content: 1100px;
 }
 
 .pt-watch-layout {
   padding-left: var(--sidebar-w);
   min-height: 100dvh;
   width: 100%;
-  background: #0f0f0f; 
-  color: #fff;         
+  background: #0f0f0f;
+  color: #fff;
 }
 
 .pt-watch-main {
   padding: var(--page-pad-y) var(--page-pad-x);
   max-width: var(--max-content);
   margin: 0 auto;
-  min-width: 0; 
+  min-width: 0;
 }
 
 .pt-watch-section + .pt-watch-section {
   margin-top: 22px;
 }
-
 
 .pt-watch-player video,
 .pt-watch-player iframe {
@@ -33,7 +32,6 @@
   background: #000;
   display: block;
 }
-
 
 .pt-watch-title-block {
   margin-top: 10px;
@@ -46,13 +44,12 @@
   margin: 10px 0 14px;
 }
 
-
 .pt-channel-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .pt-channel-left {
@@ -77,7 +74,6 @@
   font-size: 0.9rem;
 }
 
-
 .pt-chip {
   display: inline-flex;
   align-items: center;
@@ -90,14 +86,13 @@
   background: #2c2c2c;
   color: #fff;
   font-weight: 600;
-  white-space: nowrap;   
+  white-space: nowrap;
 }
 
 .pt-chip.primary {
   background: #fff;
   color: #000;
 }
-
 
 .pt-actions-row {
   display: flex;
@@ -151,7 +146,6 @@
   line-height: 0;
 }
 
-
 .pt-desc-box {
   margin-top: 12px;
   background: #111;
@@ -185,7 +179,6 @@
 .pt-desc-links a:hover {
   text-decoration: underline;
 }
-
 
 .pt-comments-title {
   margin: 14px 0 8px;

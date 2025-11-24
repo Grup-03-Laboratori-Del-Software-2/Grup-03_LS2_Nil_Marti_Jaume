@@ -1,11 +1,18 @@
 import { useNavigate } from 'react-router-dom';
+import { FiLogOut } from 'react-icons/fi';
 
-export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title' | 'comments') => void }) {
+type Props = {
+  onGoto: (k: 'player' | 'title' | 'comments') => void;
+  hasUser: boolean;
+  onOpenAuth: () => void;
+  onSignOut: () => void;
+};
+
+export default function WatchSidebar({ onGoto, hasUser, onOpenAuth, onSignOut }: Props) {
   const navigate = useNavigate();
 
   return (
     <aside className="pt-sidebar" aria-label="Navegación principal">
-      {/* Logo arriba */}
       <a
         href="#home"
         className="pt-logo"
@@ -19,7 +26,6 @@ export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title
       </a>
 
       <nav className="pt-side-links">
-        {/* Home */}
         <a
           href="#home"
           title="Inicio"
@@ -36,7 +42,6 @@ export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title
           </svg>
         </a>
 
-        {/* Ir al reproductor */}
         <a
           href="#player"
           title="Reproductor"
@@ -53,7 +58,6 @@ export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title
           </svg>
         </a>
 
-        {/* Ir al título */}
         <a
           href="#title"
           title="Título"
@@ -69,7 +73,6 @@ export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title
           </svg>
         </a>
 
-        {/* Ir a comentarios */}
         <a
           href="#comments"
           title="Comentarios"
@@ -86,14 +89,31 @@ export default function WatchSidebar({ onGoto }: { onGoto: (k: 'player' | 'title
         </a>
       </nav>
 
-      {/* Inferior: login / perfil */}
       <div className="pt-side-bottom">
-        <button title="Iniciar sesión / Registrarse" aria-label="Iniciar sesión / Registrarse" className="pt-side-link">
-          <svg viewBox="0 0 24 24" height="22" width="22" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </button>
+        {hasUser ? (
+          <button
+            type="button"
+            title="Cerrar sesión"
+            aria-label="Cerrar sesión"
+            className="pt-side-link"
+            onClick={onSignOut}
+          >
+            <FiLogOut size={22} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            title="Iniciar sesión / Registrarse"
+            aria-label="Iniciar sesión / Registrarse"
+            className="pt-side-link"
+            onClick={onOpenAuth}
+          >
+            <svg viewBox="0 0 24 24" height="22" width="22" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </button>
+        )}
       </div>
     </aside>
   );

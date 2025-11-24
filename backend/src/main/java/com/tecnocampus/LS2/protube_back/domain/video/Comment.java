@@ -20,13 +20,19 @@ public class Comment {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    public Comment() {
+    }
+
     public int getId() {
         return id;
     }
 
-
     public String getUsername() {
         return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getText() {
@@ -41,9 +47,15 @@ public class Comment {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public Video getVideo() {
         return video;
     }
 
+    public void setVideo(Video video) {
+        this.video = video;
+    }
 }

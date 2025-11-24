@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-// import { getEnv } from "../utils/Env";
 
 export type AuthUser = {
   email: string;
@@ -25,13 +24,7 @@ const AuthCtx = createContext<Ctx | undefined>(undefined);
 const TOKEN_KEY = 'authToken';
 const USER_KEY = 'authUser';
 
-// Utilidad: base API. En dev usamos backend en localhost:8080
 function getApiBase(): string {
-  /*const env = getEnv() as any;
-  const v1 = env?.API_BASE_URL ?? env?.API_DOMAIN ?? "";
-  const v2 = (import.meta as any)?.env?.VITE_API_DOMAIN ?? "";
-  const base = String(v1 || v2 || "").trim();
-  return base || ""; // <- vacío = usa proxy Vite (rutas relativas)*/
   return 'http://localhost:8080';
 }
 
@@ -107,19 +100,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string) => {
       setLoading(true);
       try {
-        // console.log('API base usada:', API);
         const res = await fetch(`${API}/user/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          credentials: 'include',
         });
         if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
 
-        // Intento 1: header Authorization
         const auth = res.headers.get('Authorization');
         let tok = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
 
-        // Intento 2: body con { accessToken }
         if (!tok) {
           const json = await res.json();
           tok = extractToken(json);
@@ -139,7 +130,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (name: string, surname: string, email: string, password: string, dateOfBirthISO: string) => {
       setLoading(true);
       try {
-        // console.log('API base usada:', API);
         const r = await fetch(`${API}/user/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -153,7 +143,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
 
-        // login automático
         await signIn(email, password);
       } finally {
         setLoading(false);
@@ -165,7 +154,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(() => {
     setToken(null);
     setUser(null);
-  }, []);
+    fetch(`${API}/user/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(() => {});
+  }, [API]);
 
   const value = useMemo<Ctx>(
     () => ({ user, token, loading, signIn, signUp, signOut }),
@@ -175,7 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthCtx);
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
