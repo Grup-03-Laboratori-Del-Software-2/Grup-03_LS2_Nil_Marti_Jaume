@@ -1,5 +1,6 @@
 package com.tecnocampus.LS2.protube_back.api.video;
 
+import com.tecnocampus.LS2.protube_back.application.dto.video.CommentCreateDTO;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDTO;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
 import com.tecnocampus.LS2.protube_back.application.service.video.VideoService;
@@ -10,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -25,40 +26,50 @@ public class VideoController {
 
     @GetMapping("")
     public ResponseEntity<List<VideoDTO>> getVideos() {
-        return ResponseEntity.ok().body(videoService.getVideos());
+        return ResponseEntity.ok(videoService.getVideos());
     }
 
     @GetMapping("/{videoId}")
-    public ResponseEntity<Optional<VideoDetailDTO>> getVideo(@PathVariable Long videoId) {
-        return ResponseEntity.ok().body(videoService.getVideoDetail(videoId));
+    public ResponseEntity<VideoDetailDTO> getVideo(@PathVariable Long videoId) {
+        return videoService.getVideoDetail(videoId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<VideoDetailDTO> uploadVideo(
-            @RequestParam("video") MultipartFile videoFile,
-            @RequestParam("thumbnail") MultipartFile thumbnailFile,
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("username") String username,
-            @RequestParam("duration") long duration
-    ) throws IOException {
-        VideoDetailDTO created = videoService.uploadVideo(
-                videoFile,
-                thumbnailFile,
-                name,
-                username,
-                description,
-                duration
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<VideoDetailDTO> uploadVideo(@RequestPart("video") MultipartFile videoFile,
+                                                      @RequestPart("thumbnail") MultipartFile thumbnailFile,
+                                                      @RequestParam("name") String name,
+                                                      @RequestParam("username") String username,
+                                                      @RequestParam("description") String description,
+                                                      @RequestParam("duration") long duration) throws IOException {
+        VideoDetailDTO dto = videoService.uploadVideo(videoFile, thumbnailFile, name, username, description, duration);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @DeleteMapping("/{videoId}")
     public ResponseEntity<Void> deleteVideo(@PathVariable Long videoId) {
         boolean deleted = videoService.deleteVideo(videoId);
-        if (!deleted) {
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{videoId}/comments")
+    public ResponseEntity<VideoDetailDTO> addComment(@PathVariable Long videoId,
+                                                     @RequestBody CommentCreateDTO body,
+                                                     Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String text = body.text();
+        if (text == null || text.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return videoService.addComment(videoId, principal.getName(), text.trim())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

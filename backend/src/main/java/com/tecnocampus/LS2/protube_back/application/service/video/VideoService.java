@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDTO;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
 import com.tecnocampus.LS2.protube_back.application.mapper.video.VideoMapper;
+import com.tecnocampus.LS2.protube_back.domain.video.Comment;
 import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.domain.video.VideoMetadata;
 import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
@@ -23,7 +24,10 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -89,8 +93,14 @@ public class VideoService {
 
         Video v = opt.get();
 
-        try { Files.deleteIfExists(Paths.get(v.getVideoURL())); } catch (Exception ignored) {}
-        try { Files.deleteIfExists(Paths.get(v.getThumbnailURL())); } catch (Exception ignored) {}
+        try {
+            Files.deleteIfExists(Paths.get(v.getVideoURL()));
+        } catch (Exception ignored) {
+        }
+        try {
+            Files.deleteIfExists(Paths.get(v.getThumbnailURL()));
+        } catch (Exception ignored) {
+        }
 
         videoRepository.delete(v);
         return true;
@@ -134,10 +144,25 @@ public class VideoService {
                     videoRepository.save(video);
                     loadedVideos.add(video.getName());
 
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return loadedVideos;
+    }
+
+    @Transactional
+    public Optional<VideoDetailDTO> addComment(Long videoId, String username, String text) {
+        return videoRepository.findById(videoId).map(video -> {
+            Comment comment = new Comment();
+            comment.setUsername(username);
+            comment.setText(text);
+            comment.setVideo(video);
+            video.getComments().add(comment);
+            Video saved = videoRepository.save(video);
+            return VideoMapper.videoToVideoDetailDTO(saved);
+        });
     }
 }

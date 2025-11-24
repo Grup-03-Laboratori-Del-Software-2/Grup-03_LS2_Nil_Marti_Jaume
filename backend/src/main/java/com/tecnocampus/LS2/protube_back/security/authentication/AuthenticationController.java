@@ -38,8 +38,22 @@ public class AuthenticationController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .header(HttpHeaders.AUTHORIZATION, tokenPrefix + token)
                 .body(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        var cookie = ResponseCookie.from("access_token", "")
+                .httpOnly(true)
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
 }

@@ -1,7 +1,9 @@
-package com.tecnocampus.LS2.protube_back.security.authentication;
+package com.tecnocampus.LS2.protube_back.api;
 
 import com.tecnocampus.LS2.protube_back.domain.user.User;
+import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.persistance.user.UserRepository;
+import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +19,14 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(properties = {
         "pro-tube.store-dir=c:",
         "pro-tube.load-initial-data=false"
 })
 @AutoConfigureMockMvc
-class AuthenticationControllerCookieTest {
+class VideoCommentsIntegrationTest {
 
     @Autowired
     MockMvc mvc;
@@ -33,17 +35,22 @@ class AuthenticationControllerCookieTest {
     UserRepository userRepository;
 
     @Autowired
+    VideoRepository videoRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
-    private static final String EMAIL = "test.user@protube.dev";
+    private static final String EMAIL = "comment.user@protube.dev";
     private static final String RAW_PASSWORD = "Abc12345#";
 
     @BeforeEach
     void setUp() {
+        videoRepository.deleteAll();
         userRepository.deleteAll();
+
         String hash = passwordEncoder.encode(RAW_PASSWORD);
         User u = new User(
-                "Test",
+                "Comment",
                 "User",
                 EMAIL,
                 LocalDateTime.parse("2000-01-01T00:00:00"),
@@ -55,26 +62,48 @@ class AuthenticationControllerCookieTest {
     }
 
     @Test
-    void login_setsAuthorizationHeaderAndCookie() throws Exception {
-        String body = """
+    void addComment_returnsUpdatedVideoDetail() throws Exception {
+        Video video = new Video(
+                "c:/tmp/v1.mp4",
+                "Video test",
+                "channelUser",
+                "desc",
+                LocalDateTime.now(),
+                "c:/tmp/t1.webp",
+                10L
+        );
+        video = videoRepository.save(video);
+
+        String loginBody = """
                 {
                   "email": "%s",
                   "password": "%s"
                 }
                 """.formatted(EMAIL, RAW_PASSWORD);
 
-        MvcResult result = mvc.perform(post("/user/login")
+        MvcResult loginResult = mvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content(loginBody))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String authHeader = result.getResponse().getHeader("Authorization");
-        String setCookie = result.getResponse().getHeader("Set-Cookie");
-
+        String authHeader = loginResult.getResponse().getHeader("Authorization");
         assertThat(authHeader).isNotNull();
-        assertThat(authHeader).startsWith("Bearer ");
-        assertThat(setCookie).isNotNull();
-        assertThat(setCookie).contains("access_token=");
+
+        String commentBody = """
+                {
+                  "text": "Primer comentario"
+                }
+                """;
+
+        mvc.perform(post("/api/videos/" + video.getId() + "/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", authHeader)
+                        .content(commentBody))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(video.getId()))
+                .andExpect(jsonPath("$.comments").isArray())
+                .andExpect(jsonPath("$.comments[0].text").value("Primer comentario"));
     }
 }
