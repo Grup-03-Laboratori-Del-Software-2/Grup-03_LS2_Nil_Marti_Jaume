@@ -50,11 +50,20 @@ export default function WatchPage() {
 
   const { user, token, signOut } = useAuth();
 
+  // Comentarios
   const [newComment, setNewComment] = useState('');
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentSubmitting, setCommentSubmitting] = useState(false);
 
+  // Modal de login desde la página de vídeo
   const [authOpen, setAuthOpen] = useState(false);
+
+  // Estado de canal: suscripción + likes
+  const [subscribed, setSubscribed] = useState<boolean | null>(null);
+  const [likesCount, setLikesCount] = useState<number | null>(null);
+  const [channelError, setChannelError] = useState<string | null>(null);
+  const [likeSubmitting, setLikeSubmitting] = useState(false);
+  const [subSubmitting, setSubSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,8 +81,9 @@ export default function WatchPage() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json = (await res.json()) as ApiVideoDetail | null;
-        if (!cancelled) {
+        if (!cancelled && json) {
           setDetail(json);
+          setLikesCount(json.likes ? json.likes.length : 0);
           setError(null);
         }
       } catch (e: unknown) {
@@ -90,6 +100,46 @@ export default function WatchPage() {
       cancelled = true;
     };
   }, [id]);
+
+  // Cargar info de suscripción de canal
+  useEffect(() => {
+    if (!detail?.username) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setChannelError(null);
+        const headers: Record<string, string> = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const res = await fetch(`/api/channels/${encodeURIComponent(detail.username)}/subscription`, {
+          method: 'GET',
+          headers,
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          // Si este endpoint aún no existe, simplemente salimos sin romper nada
+          return;
+        }
+
+        const data = (await res.json()) as { subscribed?: boolean; likesCount?: number };
+
+        if (!cancelled) {
+          if (typeof data.subscribed === 'boolean') setSubscribed(data.subscribed);
+          if (typeof data.likesCount === 'number') setLikesCount(data.likesCount);
+        }
+      } catch {
+        if (!cancelled) {
+          setChannelError('No se pudo cargar el estado del canal');
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [detail?.username, token]);
 
   const ui = useMemo(() => {
     const title = fromState?.title ?? detail?.name ?? 'Vídeo';
@@ -139,6 +189,7 @@ export default function WatchPage() {
     }
     if (!user) {
       setCommentError('Necesitas iniciar sesión para comentar');
+      setAuthOpen(true);
       return;
     }
 
@@ -162,6 +213,7 @@ export default function WatchPage() {
 
       if (res.status === 401) {
         setCommentError('Necesitas iniciar sesión para comentar');
+        setAuthOpen(true);
         return;
       }
       if (!res.ok) {
@@ -171,11 +223,93 @@ export default function WatchPage() {
 
       const updated = (await res.json()) as ApiVideoDetail;
       setDetail(updated);
+      setLikesCount(updated.likes ? updated.likes.length : 0);
       setNewComment('');
     } catch {
       setCommentError('Error al enviar el comentario');
     } finally {
       setCommentSubmitting(false);
+    }
+  };
+
+  const handleToggleLike = async () => {
+    if (!detail || !id) return;
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+
+    try {
+      setLikeSubmitting(true);
+      setChannelError(null);
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const userEmail = user.email.toLowerCase();
+      const likedByMe = detail.likes.some((l) => l.username.toLowerCase() === userEmail);
+
+      const method = likedByMe ? 'DELETE' : 'POST';
+
+      const res = await fetch(`/api/videos/${id}/likes`, {
+        method,
+        headers,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        setChannelError(`No se pudo actualizar el like (${res.status})`);
+        return;
+      }
+
+      const updated = (await res.json()) as ApiVideoDetail;
+      setDetail(updated);
+      setLikesCount(updated.likes ? updated.likes.length : 0);
+    } catch {
+      setChannelError('Error al actualizar el like');
+    } finally {
+      setLikeSubmitting(false);
+    }
+  };
+
+  const handleToggleSubscribe = async () => {
+    if (!detail?.username) return;
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+
+    try {
+      setSubSubmitting(true);
+      setChannelError(null);
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`/api/channels/${encodeURIComponent(detail.username)}/subscription`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        setChannelError(`No se pudo actualizar la suscripción (${res.status})`);
+        return;
+      }
+
+      const data = (await res.json()) as { subscribed?: boolean };
+
+      if (typeof data.subscribed === 'boolean') {
+        setSubscribed(data.subscribed);
+      }
+    } catch {
+      setChannelError('Error al actualizar la suscripción');
+    } finally {
+      setSubSubmitting(false);
     }
   };
 
@@ -239,7 +373,46 @@ export default function WatchPage() {
                 <div className="pt-channel-subs">—</div>
               </div>
             </div>
+
+            <div className="pt-channel-right" style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={handleToggleLike}
+                disabled={likeSubmitting}
+                style={{
+                  padding: '0.35rem 0.9rem',
+                  borderRadius: 6,
+                  cursor: likeSubmitting ? 'default' : 'pointer',
+                  background: '#374151',
+                  color: 'white',
+                  fontSize: '.85rem',
+                  fontWeight: 500,
+                  border: 'none',
+                }}
+              >
+                Me gusta ({likesCount ?? 0})
+              </button>
+              {detail && (
+                <button
+                  onClick={handleToggleSubscribe}
+                  disabled={subSubmitting}
+                  style={{
+                    padding: '0.35rem 0.9rem',
+                    borderRadius: 6,
+                    cursor: subSubmitting ? 'default' : 'pointer',
+                    background: subscribed ? '#16a34a' : '#111827',
+                    color: 'white',
+                    fontSize: '.85rem',
+                    fontWeight: 500,
+                    border: 'none',
+                  }}
+                >
+                  {subscribed ? 'Suscrito' : 'Suscribirse'}
+                </button>
+              )}
+            </div>
           </div>
+
+          {channelError && <p style={{ marginTop: '0.5rem', fontSize: '.85rem', color: '#fca5a5' }}>{channelError}</p>}
 
           {user && detail && (
             <div style={{ marginTop: '0.75rem' }}>

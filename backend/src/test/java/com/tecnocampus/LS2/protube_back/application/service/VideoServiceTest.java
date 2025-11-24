@@ -3,6 +3,7 @@ package com.tecnocampus.LS2.protube_back.application.service;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDTO;
 import com.tecnocampus.LS2.protube_back.application.dto.video.VideoDetailDTO;
 import com.tecnocampus.LS2.protube_back.application.service.video.VideoService;
+import com.tecnocampus.LS2.protube_back.domain.video.Like;
 import com.tecnocampus.LS2.protube_back.domain.video.Video;
 import com.tecnocampus.LS2.protube_back.persistance.video.VideoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -170,5 +172,60 @@ class VideoServiceTest {
 
         assertFalse(result);
         verify(videoRepository, never()).delete(any());
+    }
+
+    @Test
+    void addLike_addsNewLikeWhenNotExisting() throws Exception {
+        Video video = new Video("url", "name", "user", "desc", LocalDateTime.now(), "thumb", 12L);
+
+        // inicializamos lista de likes vacía para estar seguros
+        List<Like> likes = new ArrayList<>();
+        Field likesField = Video.class.getDeclaredField("likes");
+        likesField.setAccessible(true);
+        likesField.set(video, likes);
+
+        Field idField = Video.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(video, 1L);
+
+        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
+        when(videoRepository.save(any(Video.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        VideoDetailDTO dto = videoService.addLike(1L, "user@example.com");
+
+        assertNotNull(dto);
+        assertEquals(1, dto.likes().size());
+        assertEquals("user@example.com", dto.likes().get(0).username());
+        verify(videoRepository, times(1)).save(any(Video.class));
+    }
+
+    @Test
+    void removeLike_removesExistingLike() throws Exception {
+        Video video = new Video("url", "name", "user", "desc", LocalDateTime.now(), "thumb", 12L);
+
+        Like like1 = new Like("user@example.com", video);
+        Like like2 = new Like("other@example.com", video);
+        List<Like> likes = new ArrayList<>();
+        likes.add(like1);
+        likes.add(like2);
+
+        Field likesField = Video.class.getDeclaredField("likes");
+        likesField.setAccessible(true);
+        likesField.set(video, likes);
+
+        Field idField = Video.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(video, 1L);
+
+        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
+        when(videoRepository.save(any(Video.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        VideoDetailDTO dto = videoService.removeLike(1L, "user@example.com");
+
+        assertNotNull(dto);
+        // solo debería quedar el like del otro usuario
+        assertEquals(1, dto.likes().size());
+        assertEquals("other@example.com", dto.likes().get(0).username());
+        verify(videoRepository, times(1)).save(any(Video.class));
     }
 }
