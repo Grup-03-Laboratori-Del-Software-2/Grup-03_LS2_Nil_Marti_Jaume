@@ -78,8 +78,8 @@ describe('Home interactions (cubrir funciones de Home.tsx)', () => {
       expect(screen.getAllByText('Video Uno').length).toBeGreaterThan(0);
     });
 
-      const recomendadosLink = screen.getByLabelText('Recomendados');
-      fireEvent.click(recomendadosLink);
+    const recomendadosLink = screen.getByLabelText('Recomendados');
+    fireEvent.click(recomendadosLink);
 
     await waitFor(() => {
       expect(replaceSpy).toHaveBeenCalled();

@@ -10,7 +10,7 @@ class IndexControllerTest {
     @Test
     void home() {
 
-        assertEquals("index", indexController.home().getViewName());
+        assertEquals("forward:/index.html", indexController.home().getViewName());
     }
 
     @Test
