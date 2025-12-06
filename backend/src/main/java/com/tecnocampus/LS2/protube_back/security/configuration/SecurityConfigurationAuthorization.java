@@ -18,11 +18,18 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 public class SecurityConfigurationAuthorization {
 
     private static final String[] WHITE_LIST_URL = {
+            "/",
             "/user/register",
             "/user/login",
             "/media/**",
             "/api/videos/**",
-            "/h2-console/**"
+            "/h2-console/**",
+            "/index.html",
+            "/assets/**",
+            "/favicon.ico",
+            "/vidflow-logo.png",
+            "/protube-logo.png",
+            "/vite.svg"
     };
 
     private final JwtDecoder jwtDecoder;

@@ -10,7 +10,7 @@ public class IndexController {
 
     @GetMapping("")
     public ModelAndView home() {
-        return new ModelAndView("index");
+        return new ModelAndView("forward:/index.html");
     }
     @PostMapping("logout")
     public ModelAndView logout() {

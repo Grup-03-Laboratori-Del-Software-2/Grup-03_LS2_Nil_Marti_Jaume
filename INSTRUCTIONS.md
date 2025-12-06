@@ -64,7 +64,7 @@ npm run dev
 - Si estàs amb compte d'usuari et pots subscriure a un canal.
 
 ### **4. Upload de vídeos**
-- `UploadModal` permet penjar vídeos.
+- `UploadModal` permet penjar vídeos, el camp "Duración (segundos)" has d'especificar els segons que vols que duri el vídeo, exemple: 60.
 
 ### **5. Perfil d’usuari (`/profile`)**
 - Actualitzar dades personals.

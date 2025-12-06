@@ -115,8 +115,6 @@ function SideNav() {
 
         <nav className="pt-side-links">
           <Link id="home" title="Inicio" Icon={FiHome} />
-          <Link id="trending" title="Tendencias" Icon={FiTrendingUp} />
-          <Link id="recently-added" title="Novedades" Icon={FiClock} />
           <Link id="recommended" title="Recomendados" Icon={FiStar} />
           <Link id="all" title="Todos los vídeos" Icon={FiGrid} />
           <Link id="contact" title="Contacto" Icon={FiMail} />
@@ -287,13 +285,6 @@ function ContactSection() {
               </li>
             </ul>
           </div>
-          <div className="pt-contact-card">
-            <h3>Estado del backend</h3>
-            <p>
-              En desarrollo. Esta demo usa datos simulados (mocks). Cuando el API esté disponible, cambia{' '}
-              <code>VITE_USE_MOCK_VIDEOS</code> a <code>false</code>.
-            </p>
-          </div>
         </div>
       </div>
     </section>
@@ -322,7 +313,6 @@ function HeroBanner({ video }: { video: Video | null }) {
           >
             Reproducir
           </button>
-          <button>Más info</button>
         </div>
       </div>
     </section>
